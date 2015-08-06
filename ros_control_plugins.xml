@@ -1,0 +1,12 @@
+<library path="lib/libpal_transmissions_loader_plugins">
+
+  <!-- Transmission types -->
+  <class name="pal_transmissions/HeadTransmission"
+         type="pal_transmissions::HeadTransmissionLoader"
+         base_class_type="transmission_interface::TransmissionLoader">
+    <description>
+      Load from a URDF description the configuration of the REEM / REEM-C head transmission.
+    </description>
+  </class>
+
+</library>
