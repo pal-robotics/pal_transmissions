@@ -50,7 +50,7 @@ namespace pal_transmissions
 
 HeadTransmissionLoader::TransmissionPtr HeadTransmissionLoader::load(const TransmissionInfo& transmission_info)
 {
-  // Transmission should contain only one actuator/joint
+  // Preconditions
   if (!checkActuatorDimension(transmission_info, 2)) {return TransmissionPtr();}
   if (!checkJointDimension(transmission_info,    2)) {return TransmissionPtr();}
 
