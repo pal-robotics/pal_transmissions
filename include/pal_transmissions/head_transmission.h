@@ -293,6 +293,8 @@ inline HeadTransmission::Limits HeadTransmission::getLimits(const double val) co
                           it2->key, it2->max,
                           val);
   }
+
+  return ret;
 }
 
 inline double HeadTransmission::interpolate(const double x1, const double y1,
