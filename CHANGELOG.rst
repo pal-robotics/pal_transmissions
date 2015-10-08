@@ -2,6 +2,11 @@
 Changelog for package pal_transmissions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Add missing return value
+* Contributors: Adolfo Rodriguez Tsouroukdissian
+
 0.1.0 (2015-08-06)
 ------------------
 * Add custom REEM/REEM-C head transmission
