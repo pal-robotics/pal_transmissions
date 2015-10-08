@@ -2,8 +2,8 @@
 Changelog for package pal_transmissions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.1.1 (2015-10-08)
+------------------
 * Add missing return value
 * Contributors: Adolfo Rodriguez Tsouroukdissian
 
