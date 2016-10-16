@@ -144,6 +144,14 @@ public:
   void jointToActuatorPosition(const JointData&    jnt_data,
                                      ActuatorData& act_data);
 
+  virtual bool hasActuatorToJointAbsolutePosition(){
+    return false;
+  }
+
+  virtual bool hasActuatorToJointTorqueSensor(){
+    return false;
+  }
+
   std::size_t numActuators() const {return 2;}
   std::size_t numJoints()    const {return 2;}
 
