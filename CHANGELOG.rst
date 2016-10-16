@@ -2,6 +2,11 @@
 Changelog for package pal_transmissions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fixed API compatibility
+* Contributors: Hilario Tome
+
 0.2.0 (2016-04-05)
 ------------------
 
