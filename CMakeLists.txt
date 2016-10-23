@@ -31,7 +31,8 @@ catkin_package(
 
 include_directories(include ${catkin_INCLUDE_DIRS} ${TinyXML_INCLUDE_DIRS})
 
-add_library(${PROJECT_NAME}_loader_plugins src/head_transmission_loader.cpp)
+add_library(${PROJECT_NAME}_loader_plugins src/head_transmission_loader.cpp
+                                           src/half_differential_transmission_loader.cpp)
 target_link_libraries(${PROJECT_NAME}_loader_plugins ${catkin_LIBRARIES} ${TinyXML_LIBRARIES})
 
 #############
