@@ -247,8 +247,8 @@ inline void HalfDifferentialTransmission::actuatorToJointEffort(const ActuatorDa
   std::vector<double>& ar = act_reduction_;
   std::vector<double>& jr = jnt_reduction_;
 
-  *jnt_data.effort[0] = jr[0] * (*act_data.effort[0] * ar[0] + *act_data.effort[1] * ar[1]);
-  *jnt_data.effort[1] = jr[1] * (*act_data.effort[1] * ar[1]);
+  *jnt_data.effort[0] = jr[0] * (*act_data.effort[0] * ar[0]);
+  *jnt_data.effort[1] =  jr[1] * ((*act_data.effort[0] * ar[0]) - (*act_data.effort[1] * ar[1]));
 }
 
 inline void HalfDifferentialTransmission::actuatorToJointVelocity(const ActuatorData& act_data,
@@ -260,8 +260,9 @@ inline void HalfDifferentialTransmission::actuatorToJointVelocity(const Actuator
   std::vector<double>& ar = act_reduction_;
   std::vector<double>& jr = jnt_reduction_;
 
-  *jnt_data.velocity[0] = (*act_data.velocity[0] / ar[0] + *act_data.velocity[1] / ar[1]) / (2.0 * jr[0]);
-  *jnt_data.velocity[1] = (*act_data.velocity[1] / ar[1]) / (2.0 * jr[1]);
+  *jnt_data.velocity[0] = (*act_data.velocity[0] / ar[0]) / jr[0];
+  *jnt_data.velocity[1] = (*act_data.velocity[0] / ar[0] - *act_data.velocity[1] / ar[1]) / (2.0 * jr[1]);
+
 }
 
 inline void HalfDifferentialTransmission::actuatorToJointPosition(const ActuatorData& act_data,
@@ -273,8 +274,9 @@ inline void HalfDifferentialTransmission::actuatorToJointPosition(const Actuator
   std::vector<double>& ar = act_reduction_;
   std::vector<double>& jr = jnt_reduction_;
 
-  *jnt_data.position[0] = (*act_data.position[0] / ar[0] + *act_data.position[1] / ar[1]) / (2.0 * jr[0]) + jnt_offset_[0];
-  *jnt_data.position[1] = (*act_data.position[1] / ar[1]) / (2.0 * jr[1]) + jnt_offset_[1];
+  *jnt_data.position[0] = (*act_data.position[0] / ar[0]) / ( jr[0]) + jnt_offset_[0];
+  *jnt_data.position[1] = (*act_data.position[0] / ar[0] - *act_data.position[1] / ar[1]) / (2.0 * jr[1]) + jnt_offset_[1];
+
 }
 
 inline void HalfDifferentialTransmission::actuatorToJointAbsolutePosition(const ActuatorData& act_data,
@@ -286,8 +288,9 @@ inline void HalfDifferentialTransmission::actuatorToJointAbsolutePosition(const 
   std::vector<double>& ar = act_reduction_;
   std::vector<double>& jr = jnt_reduction_;
 
-  *jnt_data.absolute_position[0] = (*act_data.absolute_position[0] / ar[0] + *act_data.absolute_position[1] / ar[1]) / (2.0 * jr[0]) + jnt_offset_[0];
-  *jnt_data.absolute_position[1] = (*act_data.absolute_position[1] / ar[1]) / (2.0 * jr[1]) + jnt_offset_[1];
+  *jnt_data.absolute_position[0] = (*act_data.absolute_position[0] / ar[0]) / ( jr[0]) + jnt_offset_[0];
+  *jnt_data.absolute_position[1] = (*act_data.absolute_position[0] / ar[0] - *act_data.absolute_position[1] / ar[1]) / (2.0 * jr[1]) + jnt_offset_[1];
+
 }
 
 inline void HalfDifferentialTransmission::actuatorToJointTorqueSensor(const ActuatorData& act_data,
@@ -299,8 +302,9 @@ inline void HalfDifferentialTransmission::actuatorToJointTorqueSensor(const Actu
   std::vector<double>& ar = act_reduction_;
   std::vector<double>& jr = jnt_reduction_;
 
-  *jnt_data.torque_sensor[0] = jr[0] * (*act_data.torque_sensor[0] * ar[0] + *act_data.torque_sensor[1] * ar[1]);
-  *jnt_data.torque_sensor[1] = (*act_data.torque_sensor[1] * ar[1]);
+  *jnt_data.torque_sensor[0] = (*act_data.torque_sensor[0] * ar[0]);
+  *jnt_data.torque_sensor[1] = jr[1] * (*act_data.torque_sensor[0] * ar[0] + *act_data.torque_sensor[1] * ar[1]);
+
 }
 
 inline void HalfDifferentialTransmission::jointToActuatorEffort(const JointData&    jnt_data,
@@ -312,8 +316,9 @@ inline void HalfDifferentialTransmission::jointToActuatorEffort(const JointData&
   std::vector<double>& ar = act_reduction_;
   std::vector<double>& jr = jnt_reduction_;
 
-  *act_data.effort[0] = (*jnt_data.effort[0] / jr[0] + *jnt_data.effort[1] / jr[1]) / (2.0 * ar[0]);
-  *act_data.effort[1] = (*jnt_data.effort[1] / jr[1]) / (2.0 * ar[1]);
+  *act_data.effort[0] = (*jnt_data.effort[0] / jr[0]) / (ar[1]);
+  *act_data.effort[1] = (*jnt_data.effort[0] / jr[0] - *jnt_data.effort[1] / jr[1]) / (2.0 * ar[1]);
+
 }
 
 inline void HalfDifferentialTransmission::jointToActuatorVelocity(const JointData&    jnt_data,
@@ -325,8 +330,9 @@ inline void HalfDifferentialTransmission::jointToActuatorVelocity(const JointDat
   std::vector<double>& ar = act_reduction_;
   std::vector<double>& jr = jnt_reduction_;
 
-  *act_data.velocity[0] = (*jnt_data.velocity[0] * jr[0] + *jnt_data.velocity[1] * jr[1]) * ar[0];
-  *act_data.velocity[1] = (*jnt_data.velocity[1] * jr[1]) * ar[1];
+  *act_data.velocity[0] = (*jnt_data.velocity[0] * jr[0]) * ar[0];
+  *act_data.velocity[1] = (*jnt_data.velocity[1] * jr[1] - *jnt_data.velocity[1] * jr[1]) * ar[1];
+
 }
 
 inline void HalfDifferentialTransmission::jointToActuatorPosition(const JointData&    jnt_data,
@@ -338,10 +344,11 @@ inline void HalfDifferentialTransmission::jointToActuatorPosition(const JointDat
   std::vector<double>& ar = act_reduction_;
   std::vector<double>& jr = jnt_reduction_;
 
-  double jnt_pos_off[2] = {*jnt_data.position[0] - jnt_offset_[0], *jnt_data.position[1] - jnt_offset_[1]};
+  double jnt_pos_diff[2] = {*jnt_data.position[0] - jnt_offset_[0], *jnt_data.position[1] - jnt_offset_[1]};
 
-  *act_data.position[0] = (jnt_pos_off[0] * jr[0] + jnt_pos_off[1] * jr[1]) * ar[0];
-  *act_data.position[1] = (jnt_pos_off[1] * jr[1]) * ar[1];
+  *act_data.position[0] = (jnt_pos_diff[0] * jr[0]) * ar[0];
+  *act_data.position[1] = (jnt_pos_diff[0] * jr[0] - jnt_pos_diff[1] * jr[1]) * ar[1];
+
 }
 
 } // transmission_interface
