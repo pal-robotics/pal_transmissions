@@ -221,6 +221,10 @@ inline HalfDifferentialTransmission::HalfDifferentialTransmission(const std::vec
     jnt_reduction_(joint_reduction),
     jnt_offset_(joint_offset)
 {
+
+  ROS_ERROR_STREAM("JOINT REDUCTION HALF DIFFERENTIAL TRANSMISSION 1: "<<joint_reduction[0]);
+  ROS_ERROR_STREAM("JOINT REDUCTION HALF DIFFERENTIAL TRANSMISSION 1: "<<joint_reduction[1]);
+
   if (numActuators() != act_reduction_.size() ||
       numJoints()    != jnt_reduction_.size() ||
       numJoints()    != jnt_offset_.size())
@@ -262,6 +266,7 @@ inline void HalfDifferentialTransmission::actuatorToJointVelocity(const Actuator
 
   *jnt_data.velocity[0] = (*act_data.velocity[0] / ar[0]) / jr[0];
   *jnt_data.velocity[1] = (*act_data.velocity[0] / ar[0] - *act_data.velocity[1] / ar[1]) / (2.0 * jr[1]);
+  *jnt_data.velocity[1] = (*act_data.velocity[0] / ar[0] - *act_data.velocity[1] / ar[1]) / (2.0 * jr[1]);
 
 }
 
@@ -275,7 +280,7 @@ inline void HalfDifferentialTransmission::actuatorToJointPosition(const Actuator
   std::vector<double>& jr = jnt_reduction_;
 
   *jnt_data.position[0] = (*act_data.position[0] / ar[0]) / ( jr[0]) + jnt_offset_[0];
-  *jnt_data.position[1] = (*act_data.position[0] / ar[0] - *act_data.position[1] / ar[1]) / (2.0 * jr[1]) + jnt_offset_[1];
+  *jnt_data.position[1] = (*act_data.position[1] / ar[1] - *act_data.position[0] / ar[0]) / (jr[1]) + jnt_offset_[1];
 
 }
 
@@ -347,7 +352,7 @@ inline void HalfDifferentialTransmission::jointToActuatorPosition(const JointDat
   double jnt_pos_diff[2] = {*jnt_data.position[0] - jnt_offset_[0], *jnt_data.position[1] - jnt_offset_[1]};
 
   *act_data.position[0] = (jnt_pos_diff[0] * jr[0]) * ar[0];
-  *act_data.position[1] = (jnt_pos_diff[0] * jr[0] - jnt_pos_diff[1] * jr[1]) * ar[1];
+  *act_data.position[1] = (jnt_pos_diff[0] * jr[0] - jnt_pos_diff[1] * jr[1] ) * ar[1];
 
 }
 
