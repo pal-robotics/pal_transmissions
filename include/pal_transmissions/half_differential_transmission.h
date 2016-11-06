@@ -222,9 +222,6 @@ inline HalfDifferentialTransmission::HalfDifferentialTransmission(const std::vec
     jnt_offset_(joint_offset)
 {
 
-  ROS_ERROR_STREAM("JOINT REDUCTION HALF DIFFERENTIAL TRANSMISSION 1: "<<joint_reduction[0]);
-  ROS_ERROR_STREAM("JOINT REDUCTION HALF DIFFERENTIAL TRANSMISSION 1: "<<joint_reduction[1]);
-
   if (numActuators() != act_reduction_.size() ||
       numJoints()    != jnt_reduction_.size() ||
       numJoints()    != jnt_offset_.size())
@@ -293,8 +290,9 @@ inline void HalfDifferentialTransmission::actuatorToJointAbsolutePosition(const 
   std::vector<double>& ar = act_reduction_;
   std::vector<double>& jr = jnt_reduction_;
 
-  *jnt_data.absolute_position[0] = (*act_data.absolute_position[0] / ar[0]) / ( jr[0]) + jnt_offset_[0];
-  *jnt_data.absolute_position[1] = (*act_data.absolute_position[0] / ar[0] - *act_data.absolute_position[1] / ar[1]) / (2.0 * jr[1]) + jnt_offset_[1];
+  *jnt_data.absolute_position[0] = *act_data.absolute_position[0];
+  /// @todo the reductio of the joint here has been removed since the encoder is the joint side and does not need reduction
+  *jnt_data.absolute_position[1] = *act_data.absolute_position[1];
 
 }
 
