@@ -2,6 +2,15 @@
 Changelog for package pal_transmissions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Talos head transmission working
+* Fixed equations for absolute encoder of half differential encoder
+* Managed to make the head of talos work
+* Fixing head differential
+* Fixed typo half differential transmission loader
+* Contributors: Hilario Tome
+
 0.2.1 (2016-10-16)
 ------------------
 * Fixed API compatibility
