@@ -2,8 +2,8 @@
 Changelog for package pal_transmissions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.2.2 (2016-11-09)
+------------------
 * Talos head transmission working
 * Fixed equations for absolute encoder of half differential encoder
 * Managed to make the head of talos work
