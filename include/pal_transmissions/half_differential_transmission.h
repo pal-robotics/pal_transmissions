@@ -326,7 +326,7 @@ inline void HalfDifferentialTransmission::jointToActuatorEffort(const JointData&
   std::vector<double>& jr = jnt_reduction_;
 
   *act_data.effort[0] = (*jnt_data.effort[0] / jr[0]) /  ar[0];
-  *act_data.effort[1] = (*jnt_data.effort[1] / ar[1] - *jnt_data.effort[0]/jr[0]) / jr[1];
+  *act_data.effort[1] = (*jnt_data.effort[1] / ar[1] + *jnt_data.effort[0]/jr[0]) / jr[1];
 }
 
 inline void HalfDifferentialTransmission::jointToActuatorVelocity(const JointData&    jnt_data,
