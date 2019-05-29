@@ -2,8 +2,8 @@
 Changelog for package pal_transmissions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.2.4 (2019-05-29)
+------------------
 * Merge branch 'half_differential_effort' into 'erbium-devel'
   Half differential effort
   See merge request control/pal_transmissions!2
