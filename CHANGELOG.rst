@@ -2,6 +2,17 @@
 Changelog for package pal_transmissions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge branch 'half_differential_effort' into 'erbium-devel'
+  Half differential effort
+  See merge request control/pal_transmissions!2
+* fixed sign in head transmission
+* fixing half differential effort
+* Merge remote-tracking branch 'origin/license-refactor' into erbium-devel
+* Update PAL licenses
+* Contributors: Hilario Tome, Victor Lopez
+
 0.2.3 (2019-05-29)
 ------------------
 
