@@ -2,6 +2,11 @@
 Changelog for package pal_transmissions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fixed shadowed variables
+* Contributors: Jordan Palacios
+
 0.2.4 (2019-05-29)
 ------------------
 * Merge branch 'half_differential_effort' into 'erbium-devel'
