@@ -2,8 +2,8 @@
 Changelog for package pal_transmissions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.2.5 (2019-09-12)
+------------------
 * Fixed shadowed variables
 * Contributors: Jordan Palacios
 
