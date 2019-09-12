@@ -29,7 +29,8 @@ catkin_package(
 ## Build ##
 ###########
 
-include_directories(include ${catkin_INCLUDE_DIRS} ${TinyXML_INCLUDE_DIRS})
+include_directories(include)
+include_directories(SYSTEM ${catkin_INCLUDE_DIRS} ${TinyXML_INCLUDE_DIRS})
 
 add_library(${PROJECT_NAME}_loader_plugins src/head_transmission_loader.cpp
                                            src/half_differential_transmission_loader.cpp)
@@ -57,7 +58,7 @@ install(FILES ros_control_plugins.xml
 
 if(CATKIN_ENABLE_TESTING)
   find_package(resource_retriever)
-  include_directories(${resource_retriever_INCLUDE_DIRS})
+  include_directories(SYSTEM ${resource_retriever_INCLUDE_DIRS})
 
   catkin_add_gtest(head_transmission_test test/head_transmission_test.cpp)
 
