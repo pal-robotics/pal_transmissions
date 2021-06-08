@@ -1,6 +1,17 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(pal_transmissions)
 
+include(CheckCXXCompilerFlag)
+CHECK_CXX_COMPILER_FLAG("-std=c++14" COMPILER_SUPPORTS_CXX14)
+CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
+if(COMPILER_SUPPORTS_CXX14)
+   message(STATUS "The compiler ${CMAKE_CXX_COMPILER} has C++14 support.")
+   set(CMAKE_CXX_STANDARD 14)
+elseif(COMPILER_SUPPORTS_CXX11)
+   message(STATUS "The compiler ${CMAKE_CXX_COMPILER} has C++11 support.")
+   set(CMAKE_CXX_STANDARD 11)
+endif()
+
 # Load catkin and all dependencies required for this package
 find_package(catkin REQUIRED COMPONENTS
   cmake_modules
