@@ -48,11 +48,12 @@ using namespace transmission_interface;
 namespace pal_transmissions
 {
 
-HeadTransmissionLoader::TransmissionPtr HeadTransmissionLoader::load(const TransmissionInfo& transmission_info)
+HeadTransmissionLoader::TransmissionPtr HeadTransmissionLoader::load(
+  const TransmissionInfo & transmission_info)
 {
   // Preconditions
   if (!checkActuatorDimension(transmission_info, 2)) {return TransmissionPtr();}
-  if (!checkJointDimension(transmission_info,    2)) {return TransmissionPtr();}
+  if (!checkJointDimension(transmission_info, 2)) {return TransmissionPtr();}
 
   // Get actuator and joint configuration sorted by role: [actuator1, actuator2] and [joint1, joint2]
   std::vector<double> act_reduction;
@@ -61,39 +62,38 @@ HeadTransmissionLoader::TransmissionPtr HeadTransmissionLoader::load(const Trans
 
   std::vector<double> jnt_offset;
   std::vector<HeadTransmission::Limits> limits_vec;
-  const bool jnt_config_ok = getJointConfig(transmission_info,
-                                            jnt_offset,
-                                            limits_vec);
+  const bool jnt_config_ok = getJointConfig(
+    transmission_info,
+    jnt_offset,
+    limits_vec);
 
   if (!jnt_config_ok) {return TransmissionPtr();}
 
   // Transmission instance
-  try
-  {
+  try {
     TransmissionPtr transmission(new HeadTransmission(act_reduction, jnt_offset, limits_vec));
     return transmission;
-  }
-  catch(const TransmissionInterfaceException& ex)
-  {
+  } catch (const TransmissionInterfaceException & ex) {
     using hardware_interface::internal::demangledTypeName;
-    ROS_ERROR_STREAM_NAMED("parser", "Failed to construct transmission '" << transmission_info.name_ << "' of type '" <<
-                           demangledTypeName<HeadTransmission>()<< "'. " << ex.what());
+    ROS_ERROR_STREAM_NAMED(
+      "parser", "Failed to construct transmission '" << transmission_info.name_ << "' of type '" <<
+        demangledTypeName<HeadTransmission>() << "'. " << ex.what());
     return TransmissionPtr();
   }
 }
 
-bool HeadTransmissionLoader::getActuatorConfig(const TransmissionInfo& transmission_info,
-                                                   std::vector<double>&    actuator_reduction)
+bool HeadTransmissionLoader::getActuatorConfig(
+  const TransmissionInfo & transmission_info,
+  std::vector<double> & actuator_reduction)
 {
   const std::string ACTUATOR1_ROLE = "independent";
   const std::string ACTUATOR2_ROLE = "dependent";
 
-  std::vector<TiXmlElement> act_elements(2,"");
-  std::vector<std::string>  act_names(2);
-  std::vector<std::string>  act_roles(2);
+  std::vector<TiXmlElement> act_elements(2, "");
+  std::vector<std::string> act_names(2);
+  std::vector<std::string> act_roles(2);
 
-  for (unsigned int i = 0; i < 2; ++i)
-  {
+  for (unsigned int i = 0; i < 2; ++i) {
     // Actuator name
     act_names[i] = transmission_info.actuators_[i].name_;
 
@@ -101,76 +101,74 @@ bool HeadTransmissionLoader::getActuatorConfig(const TransmissionInfo& transmiss
     act_elements[i] = loadXmlElement(transmission_info.actuators_[i].xml_element_);
 
     // Populate role string
-    std::string& act_role = act_roles[i];
-    const ParseStatus act_role_status = getActuatorRole(act_elements[i],
-                                                        act_names[i],
-                                                        transmission_info.name_,
-                                                        true, // Required
-                                                        act_role);
+    std::string & act_role = act_roles[i];
+    const ParseStatus act_role_status = getActuatorRole(
+      act_elements[i],
+      act_names[i],
+      transmission_info.name_,
+      true,                                                   // Required
+      act_role);
     if (act_role_status != SUCCESS) {return false;}
 
     // Validate role string
-    if (ACTUATOR1_ROLE != act_role && ACTUATOR2_ROLE != act_role)
-    {
-      ROS_ERROR_STREAM_NAMED("parser", "Actuator '" << act_names[i] << "' of transmission '" << transmission_info.name_ <<
-                             "' does not specify a valid <role> element. Got '" << act_role << "', expected '" <<
-                             ACTUATOR1_ROLE << "' or '" << ACTUATOR2_ROLE << "'.");
+    if (ACTUATOR1_ROLE != act_role && ACTUATOR2_ROLE != act_role) {
+      ROS_ERROR_STREAM_NAMED(
+        "parser", "Actuator '" << act_names[i] << "' of transmission '" << transmission_info.name_ <<
+          "' does not specify a valid <role> element. Got '" << act_role << "', expected '" <<
+          ACTUATOR1_ROLE << "' or '" << ACTUATOR2_ROLE << "'.");
       return false;
     }
   }
 
   // Roles must be different
-  if (act_roles[0] == act_roles[1])
-  {
-    ROS_ERROR_STREAM_NAMED("parser", "Actuators '" << act_names[0] << "' and '" << act_names[1] <<
-                           "' of transmission '" << transmission_info.name_ <<
-                           "' must have different roles. Both specify '" << act_roles[0] << "'.");
+  if (act_roles[0] == act_roles[1]) {
+    ROS_ERROR_STREAM_NAMED(
+      "parser", "Actuators '" << act_names[0] << "' and '" << act_names[1] <<
+        "' of transmission '" << transmission_info.name_ <<
+        "' must have different roles. Both specify '" << act_roles[0] << "'.");
     return false;
   }
 
   // Indices sorted according to role
   std::vector<unsigned int> id_map(2);
-  if (ACTUATOR1_ROLE == act_roles[0])
-  {
+  if (ACTUATOR1_ROLE == act_roles[0]) {
     id_map[0] = 0;
     id_map[1] = 1;
 
-  }
-  else
-  {
+  } else {
     id_map[0] = 1;
     id_map[1] = 0;
   }
 
   // Parse required mechanical reductions
   actuator_reduction.resize(2);
-  for (unsigned int i = 0; i < 2; ++i)
-  {
+  for (unsigned int i = 0; i < 2; ++i) {
     const unsigned int id = id_map[i];
-    const ParseStatus reduction_status = getActuatorReduction(act_elements[id],
-                                                              act_names[id],
-                                                              transmission_info.name_,
-                                                              true, // Required
-                                                              actuator_reduction[i]);
+    const ParseStatus reduction_status = getActuatorReduction(
+      act_elements[id],
+      act_names[id],
+      transmission_info.name_,
+      true,                                                         // Required
+      actuator_reduction[i]);
     if (reduction_status != SUCCESS) {return false;}
   }
 
   return true;
 }
 
-bool HeadTransmissionLoader::getJointConfig(const TransmissionInfo& transmission_info,
-                                                std::vector<double>&    joint_offset,
-                                                LimitsVec&              limits_vec)
+bool HeadTransmissionLoader::getJointConfig(
+  const TransmissionInfo & transmission_info,
+  std::vector<double> & joint_offset,
+  LimitsVec & limits_vec)
 {
   const std::string JOINT1_ROLE = "independent";
   const std::string JOINT2_ROLE = "dependent";
 
-  std::vector<TiXmlElement> jnt_elements(2,"");
-  std::vector<std::string>  jnt_names(2);
-  std::vector<std::string>  jnt_roles(2);
+  std::vector<TiXmlElement> jnt_elements(2, "");
+  std::vector<std::string> jnt_names(2);
+  std::vector<std::string> jnt_roles(2);
 
-  for (unsigned int i = 0; i < 2; ++i)
-  {
+  for (unsigned int i = 0; i < 2; ++i) {
     // Joint name
     jnt_names[i] = transmission_info.joints_[i].name_;
 
@@ -178,124 +176,125 @@ bool HeadTransmissionLoader::getJointConfig(const TransmissionInfo& transmission
     jnt_elements[i] = loadXmlElement(transmission_info.joints_[i].xml_element_);
 
     // Populate role string
-    std::string& jnt_role = jnt_roles[i];
-    const ParseStatus jnt_role_status = getJointRole(jnt_elements[i],
-                                                     jnt_names[i],
-                                                     transmission_info.name_,
-                                                     true, // Required
-                                                     jnt_role);
+    std::string & jnt_role = jnt_roles[i];
+    const ParseStatus jnt_role_status = getJointRole(
+      jnt_elements[i],
+      jnt_names[i],
+      transmission_info.name_,
+      true,                                                // Required
+      jnt_role);
     if (jnt_role_status != SUCCESS) {return false;}
 
     // Validate role string
-    if (JOINT1_ROLE != jnt_role && JOINT2_ROLE != jnt_role)
-    {
-      ROS_ERROR_STREAM_NAMED("parser", "Joint '" << jnt_names[i] << "' of transmission '" << transmission_info.name_ <<
-                             "' does not specify a valid <role> element. Got '" << jnt_role << "', expected '" <<
-                             JOINT1_ROLE << "' or '" << JOINT2_ROLE << "'.");
+    if (JOINT1_ROLE != jnt_role && JOINT2_ROLE != jnt_role) {
+      ROS_ERROR_STREAM_NAMED(
+        "parser", "Joint '" << jnt_names[i] << "' of transmission '" << transmission_info.name_ <<
+          "' does not specify a valid <role> element. Got '" << jnt_role << "', expected '" <<
+          JOINT1_ROLE << "' or '" << JOINT2_ROLE << "'.");
       return false;
     }
   }
 
   // Roles must be different
-  if (jnt_roles[0] == jnt_roles[1])
-  {
-    ROS_ERROR_STREAM_NAMED("parser", "Joints '" << jnt_names[0] << "' and '" << jnt_names[1] <<
-                           "' of transmission '" << transmission_info.name_ <<
-                           "' must have different roles. Both specify '" << jnt_roles[0] << "'.");
+  if (jnt_roles[0] == jnt_roles[1]) {
+    ROS_ERROR_STREAM_NAMED(
+      "parser", "Joints '" << jnt_names[0] << "' and '" << jnt_names[1] <<
+        "' of transmission '" << transmission_info.name_ <<
+        "' must have different roles. Both specify '" << jnt_roles[0] << "'.");
     return false;
   }
 
   // Indices sorted according to role
   std::vector<unsigned int> id_map(2);
-  if (JOINT1_ROLE == jnt_roles[0])
-  {
+  if (JOINT1_ROLE == jnt_roles[0]) {
     id_map[0] = 0;
     id_map[1] = 1;
 
-  }
-  else
-  {
+  } else {
     id_map[0] = 1;
     id_map[1] = 0;
   }
 
   // Joint configuration
   joint_offset.resize(2, 0.0);
-  for (unsigned int i = 0; i < 2; ++i)
-  {
+  for (unsigned int i = 0; i < 2; ++i) {
     const unsigned int id = id_map[i];
 
     // Parse optional joint offset. Even though it's optional --and to avoid surprises-- we fail if the element is
     // specified but is of the wrong type
-    const ParseStatus offset_status = getJointOffset(jnt_elements[id],
-                                                     jnt_names[id],
-                                                     transmission_info.name_,
-                                                     false, // Optional
-                                                     joint_offset[i]);
+    const ParseStatus offset_status = getJointOffset(
+      jnt_elements[id],
+      jnt_names[id],
+      transmission_info.name_,
+      false,                                                // Optional
+      joint_offset[i]);
     if (offset_status == BAD_TYPE) {return false;}
   }
 
   // Parse optional joint position limits specification. Only applies to dependent joint
   // Even though it's optional --and to avoid surprises-- we fail if the element is specified but is of the wrong type
-  const ParseStatus limits_status = parseLimits(jnt_elements[id_map[1]],
-                                                jnt_names[id_map[1]],
-                                                transmission_info.name_,
-                                                limits_vec);
+  const ParseStatus limits_status = parseLimits(
+    jnt_elements[id_map[1]],
+    jnt_names[id_map[1]],
+    transmission_info.name_,
+    limits_vec);
   if (limits_status != SUCCESS) {return false;}
 
   return true;
 }
 
 TransmissionLoader::ParseStatus
-HeadTransmissionLoader::parseLimits(const TiXmlElement& joint_el,
-                                        const std::string&  joint_name,
-                                        const std::string&  transmission_name,
-                                        LimitsVec&          limits_vec)
+HeadTransmissionLoader::parseLimits(
+  const TiXmlElement & joint_el,
+  const std::string & joint_name,
+  const std::string & transmission_name,
+  LimitsVec & limits_vec)
 {
   // Get limits XML elements
-  const TiXmlElement* limits_it = NULL;
+  const TiXmlElement * limits_it = NULL;
   for (limits_it = joint_el.FirstChildElement("limits"); limits_it;
-       limits_it = limits_it->NextSiblingElement("limits"))
+    limits_it = limits_it->NextSiblingElement("limits"))
   {
     HeadTransmission::Limits limits;
 
     // Key
-    const TiXmlElement* key_el = limits_it->FirstChildElement("key");
-    if(!key_el)
-    {
-      ROS_ERROR_STREAM_NAMED("parser", "Joint '" << joint_name << "' of transmission '" << transmission_name <<
-                             "' has an invalid <limits> specification. Missing key.");
+    const TiXmlElement * key_el = limits_it->FirstChildElement("key");
+    if (!key_el) {
+      ROS_ERROR_STREAM_NAMED(
+        "parser", "Joint '" << joint_name << "' of transmission '" << transmission_name <<
+          "' has an invalid <limits> specification. Missing key.");
       return NO_DATA;
     }
-    try {limits.key = boost::lexical_cast<double>(key_el->GetText());}
-    catch (const boost::bad_lexical_cast&)
-    {
-      ROS_ERROR_STREAM_NAMED("parser", "Joint '" << joint_name << "' of transmission '" << transmission_name <<
-                             "' specifies the <limits><key> element, but is not a number.");
+    try {
+      limits.key = boost::lexical_cast<double>(key_el->GetText());
+    } catch (const boost::bad_lexical_cast &) {
+      ROS_ERROR_STREAM_NAMED(
+        "parser", "Joint '" << joint_name << "' of transmission '" << transmission_name <<
+          "' specifies the <limits><key> element, but is not a number.");
       return BAD_TYPE;
     }
 
     // Min, max values
-    const TiXmlElement* min_el = limits_it->FirstChildElement("min");
-    const TiXmlElement* max_el = limits_it->FirstChildElement("max");
+    const TiXmlElement * min_el = limits_it->FirstChildElement("min");
+    const TiXmlElement * max_el = limits_it->FirstChildElement("max");
 
-    if (min_el)
-    {
-      try {limits.min = boost::lexical_cast<double>(min_el->GetText());}
-      catch (const boost::bad_lexical_cast&)
-      {
-        ROS_ERROR_STREAM_NAMED("parser", "Joint '" << joint_name << "' of transmission '" << transmission_name <<
-                               "' specifies the <limits><min> element, but is not a number.");
+    if (min_el) {
+      try {
+        limits.min = boost::lexical_cast<double>(min_el->GetText());
+      } catch (const boost::bad_lexical_cast &) {
+        ROS_ERROR_STREAM_NAMED(
+          "parser", "Joint '" << joint_name << "' of transmission '" << transmission_name <<
+            "' specifies the <limits><min> element, but is not a number.");
         return BAD_TYPE;
       }
     }
-    if (max_el)
-    {
-      try {limits.max = boost::lexical_cast<double>(max_el->GetText());}
-      catch (const boost::bad_lexical_cast&)
-      {
-        ROS_ERROR_STREAM_NAMED("parser", "Joint '" << joint_name << "' of transmission '" << transmission_name <<
-                               "' specifies the <limits><max> element, but is not a number.");
+    if (max_el) {
+      try {
+        limits.max = boost::lexical_cast<double>(max_el->GetText());
+      } catch (const boost::bad_lexical_cast &) {
+        ROS_ERROR_STREAM_NAMED(
+          "parser", "Joint '" << joint_name << "' of transmission '" << transmission_name <<
+            "' specifies the <limits><max> element, but is not a number.");
         return BAD_TYPE;
       }
     }
@@ -310,5 +309,6 @@ HeadTransmissionLoader::parseLimits(const TiXmlElement& joint_el,
 
 } // namespace
 
-PLUGINLIB_EXPORT_CLASS(pal_transmissions::HeadTransmissionLoader,
-                       transmission_interface::TransmissionLoader)
+PLUGINLIB_EXPORT_CLASS(
+  pal_transmissions::HeadTransmissionLoader,
+  transmission_interface::TransmissionLoader)

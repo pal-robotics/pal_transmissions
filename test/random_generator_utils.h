@@ -23,23 +23,30 @@ struct RandomDoubleGenerator
 public:
   RandomDoubleGenerator(double min_val, double max_val)
     : min_val_(min_val),
-      max_val_(max_val) {srand(time(NULL));}
+    max_val_(max_val) {
+    srand(time(NULL));
+  }
   double operator()()
   {
     const double range = max_val_ - min_val_;
-    return rand() / static_cast<double>(RAND_MAX) * range + min_val_;
+    return rand() / static_cast < double > (RAND_MAX) *range + min_val_;
   }
+
 private:
   double min_val_;
   double max_val_;
 };
 
 /// \brief Generator of a vector of pseudo-random doubles.
-vector<double> randomVector(const vector<double>::size_type size, RandomDoubleGenerator& generator)
+vector < double > randomVector(
+  const vector < double > ::size_type size,
+  RandomDoubleGenerator & generator)
 {
-  vector<double> out;
+  vector < double > out;
   out.reserve(size);
-  for (vector<double>::size_type i = 0; i < size; ++i) {out.push_back(generator());}
+  for (vector < double > ::size_type i = 0; i < size; ++i) {
+    out.push_back(generator());
+  }
   return out;
 }
 

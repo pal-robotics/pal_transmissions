@@ -44,10 +44,10 @@ const double EPS = 1e-6;
 vector<HeadTransmission::Limits> limitsInstance()
 {
   vector<HeadTransmission::Limits> limits(4);
-  limits[0] = HeadTransmission::Limits(-2.0,  0.0, 0.0);
+  limits[0] = HeadTransmission::Limits(-2.0, 0.0, 0.0);
   limits[1] = HeadTransmission::Limits(-1.0, -1.0, 1.0);
-  limits[2] = HeadTransmission::Limits( 1.0, -1.0, 1.0);
-  limits[3] = HeadTransmission::Limits( 2.0,  0.0, 0.0);
+  limits[2] = HeadTransmission::Limits(1.0, -1.0, 1.0);
+  limits[3] = HeadTransmission::Limits(2.0, 0.0, 0.0);
 
   return limits;
 }
@@ -75,15 +75,24 @@ TEST(PreconditionsTest, exceptionThrowing)
   EXPECT_THROW((HeadTransmission(reduction_bad3, offset_good)), TransmissionInterfaceException);
 
 
-  EXPECT_THROW((HeadTransmission(reduction_bad1, offset_good, limits_good)), TransmissionInterfaceException);
-  EXPECT_THROW((HeadTransmission(reduction_bad2, offset_good, limits_good)), TransmissionInterfaceException);
-  EXPECT_THROW((HeadTransmission(reduction_bad3, offset_good, limits_good)), TransmissionInterfaceException);
+  EXPECT_THROW(
+    (HeadTransmission(
+      reduction_bad1, offset_good,
+      limits_good)), TransmissionInterfaceException);
+  EXPECT_THROW(
+    (HeadTransmission(
+      reduction_bad2, offset_good,
+      limits_good)), TransmissionInterfaceException);
+  EXPECT_THROW(
+    (HeadTransmission(
+      reduction_bad3, offset_good,
+      limits_good)), TransmissionInterfaceException);
 
   // Invalid instance creation: Wrong parameter sizes
   vector<double> reduction_bad_size(1, 1.0);
-  vector<double>& offset_bad_size = reduction_bad_size;
-  EXPECT_THROW((HeadTransmission(reduction_bad_size)),                      TransmissionInterfaceException);
-  EXPECT_THROW((HeadTransmission(reduction_good, offset_bad_size)),         TransmissionInterfaceException);
+  vector<double> & offset_bad_size = reduction_bad_size;
+  EXPECT_THROW((HeadTransmission(reduction_bad_size)), TransmissionInterfaceException);
+  EXPECT_THROW((HeadTransmission(reduction_good, offset_bad_size)), TransmissionInterfaceException);
 
   // Valid instance creation
   EXPECT_NO_THROW((HeadTransmission(reduction_good)));
@@ -97,90 +106,90 @@ TEST(PreconditionsTest, AssertionTriggering)
   double a_val1 = 0.0, a_val2 = 0.0;
   double j_val1 = 0.0, j_val2 = 0.0;
 
-  vector<double*> a_good_vec;
+  vector<double *> a_good_vec;
   a_good_vec.push_back(&a_val1);
   a_good_vec.push_back(&a_val2);
 
-  vector<double*> j_good_vec;
+  vector<double *> j_good_vec;
   j_good_vec.push_back(&j_val1);
   j_good_vec.push_back(&j_val2);
 
   ActuatorData a_good_data;
   a_good_data.position = a_good_vec;
   a_good_data.velocity = a_good_vec;
-  a_good_data.effort   = a_good_vec;
+  a_good_data.effort = a_good_vec;
 
   JointData j_good_data;
   j_good_data.position = j_good_vec;
   j_good_data.velocity = j_good_vec;
-  j_good_data.effort   = j_good_vec;
+  j_good_data.effort = j_good_vec;
 
   ActuatorData a_bad_data;
-  a_bad_data.position = vector<double*>(2);
-  a_bad_data.velocity = vector<double*>(2);
-  a_bad_data.effort   = vector<double*>(2);
+  a_bad_data.position = vector<double *>(2);
+  a_bad_data.velocity = vector<double *>(2);
+  a_bad_data.effort = vector<double *>(2);
 
   JointData j_bad_data;
-  j_bad_data.position = vector<double*>(2);
-  j_bad_data.velocity = vector<double*>(2);
-  j_bad_data.effort   = vector<double*>(2);
+  j_bad_data.position = vector<double *>(2);
+  j_bad_data.velocity = vector<double *>(2);
+  j_bad_data.effort = vector<double *>(2);
 
   ActuatorData a_bad_size;
-  JointData    j_bad_size;
+  JointData j_bad_size;
 
   // Transmission instance
   HeadTransmission trans(vector<double>(2, 1.0),
-                             vector<double>(2, 1.0));
+    vector<double>(2, 1.0));
 
   // Data with invalid pointers should trigger an assertion
-  EXPECT_DEATH(trans.actuatorToJointEffort(a_bad_data,  j_bad_data),  ".*");
-  EXPECT_DEATH(trans.actuatorToJointEffort(a_good_data, j_bad_data),  ".*");
-  EXPECT_DEATH(trans.actuatorToJointEffort(a_bad_data,  j_good_data), ".*");
+  EXPECT_DEATH(trans.actuatorToJointEffort(a_bad_data, j_bad_data), ".*");
+  EXPECT_DEATH(trans.actuatorToJointEffort(a_good_data, j_bad_data), ".*");
+  EXPECT_DEATH(trans.actuatorToJointEffort(a_bad_data, j_good_data), ".*");
 
-  EXPECT_DEATH(trans.actuatorToJointVelocity(a_bad_data,  j_bad_data),  ".*");
-  EXPECT_DEATH(trans.actuatorToJointVelocity(a_good_data, j_bad_data),  ".*");
-  EXPECT_DEATH(trans.actuatorToJointVelocity(a_bad_data,  j_good_data), ".*");
+  EXPECT_DEATH(trans.actuatorToJointVelocity(a_bad_data, j_bad_data), ".*");
+  EXPECT_DEATH(trans.actuatorToJointVelocity(a_good_data, j_bad_data), ".*");
+  EXPECT_DEATH(trans.actuatorToJointVelocity(a_bad_data, j_good_data), ".*");
 
-  EXPECT_DEATH(trans.actuatorToJointPosition(a_bad_data,  j_bad_data),  ".*");
-  EXPECT_DEATH(trans.actuatorToJointPosition(a_good_data, j_bad_data),  ".*");
-  EXPECT_DEATH(trans.actuatorToJointPosition(a_bad_data,  j_good_data), ".*");
+  EXPECT_DEATH(trans.actuatorToJointPosition(a_bad_data, j_bad_data), ".*");
+  EXPECT_DEATH(trans.actuatorToJointPosition(a_good_data, j_bad_data), ".*");
+  EXPECT_DEATH(trans.actuatorToJointPosition(a_bad_data, j_good_data), ".*");
 
-  EXPECT_DEATH(trans.jointToActuatorEffort(j_bad_data,  a_bad_data),  ".*");
-  EXPECT_DEATH(trans.jointToActuatorEffort(j_good_data, a_bad_data),  ".*");
-  EXPECT_DEATH(trans.jointToActuatorEffort(j_bad_data,  a_good_data), ".*");
+  EXPECT_DEATH(trans.jointToActuatorEffort(j_bad_data, a_bad_data), ".*");
+  EXPECT_DEATH(trans.jointToActuatorEffort(j_good_data, a_bad_data), ".*");
+  EXPECT_DEATH(trans.jointToActuatorEffort(j_bad_data, a_good_data), ".*");
 
-  EXPECT_DEATH(trans.jointToActuatorVelocity(j_bad_data,  a_bad_data),  ".*");
-  EXPECT_DEATH(trans.jointToActuatorVelocity(j_good_data, a_bad_data),  ".*");
-  EXPECT_DEATH(trans.jointToActuatorVelocity(j_bad_data,  a_good_data), ".*");
+  EXPECT_DEATH(trans.jointToActuatorVelocity(j_bad_data, a_bad_data), ".*");
+  EXPECT_DEATH(trans.jointToActuatorVelocity(j_good_data, a_bad_data), ".*");
+  EXPECT_DEATH(trans.jointToActuatorVelocity(j_bad_data, a_good_data), ".*");
 
-  EXPECT_DEATH(trans.jointToActuatorPosition(j_bad_data,  a_bad_data),  ".*");
-  EXPECT_DEATH(trans.jointToActuatorPosition(j_good_data, a_bad_data),  ".*");
-  EXPECT_DEATH(trans.jointToActuatorPosition(j_bad_data,  a_good_data), ".*");
+  EXPECT_DEATH(trans.jointToActuatorPosition(j_bad_data, a_bad_data), ".*");
+  EXPECT_DEATH(trans.jointToActuatorPosition(j_good_data, a_bad_data), ".*");
+  EXPECT_DEATH(trans.jointToActuatorPosition(j_bad_data, a_good_data), ".*");
 
   // Wrong parameter sizes should trigger an assertion
-  EXPECT_DEATH(trans.actuatorToJointEffort(a_bad_size,  j_bad_size),  ".*");
-  EXPECT_DEATH(trans.actuatorToJointEffort(a_good_data, j_bad_size),  ".*");
-  EXPECT_DEATH(trans.actuatorToJointEffort(a_bad_size,  j_good_data), ".*");
+  EXPECT_DEATH(trans.actuatorToJointEffort(a_bad_size, j_bad_size), ".*");
+  EXPECT_DEATH(trans.actuatorToJointEffort(a_good_data, j_bad_size), ".*");
+  EXPECT_DEATH(trans.actuatorToJointEffort(a_bad_size, j_good_data), ".*");
 
-  EXPECT_DEATH(trans.actuatorToJointVelocity(a_bad_size,  j_bad_size),  ".*");
-  EXPECT_DEATH(trans.actuatorToJointVelocity(a_good_data, j_bad_size),  ".*");
-  EXPECT_DEATH(trans.actuatorToJointVelocity(a_bad_size,  j_good_data), ".*");
+  EXPECT_DEATH(trans.actuatorToJointVelocity(a_bad_size, j_bad_size), ".*");
+  EXPECT_DEATH(trans.actuatorToJointVelocity(a_good_data, j_bad_size), ".*");
+  EXPECT_DEATH(trans.actuatorToJointVelocity(a_bad_size, j_good_data), ".*");
 
-  EXPECT_DEATH(trans.actuatorToJointPosition(a_bad_size,  j_bad_size),  ".*");
-  EXPECT_DEATH(trans.actuatorToJointPosition(a_good_data, j_bad_size),  ".*");
-  EXPECT_DEATH(trans.actuatorToJointPosition(a_bad_size,  j_good_data), ".*");
+  EXPECT_DEATH(trans.actuatorToJointPosition(a_bad_size, j_bad_size), ".*");
+  EXPECT_DEATH(trans.actuatorToJointPosition(a_good_data, j_bad_size), ".*");
+  EXPECT_DEATH(trans.actuatorToJointPosition(a_bad_size, j_good_data), ".*");
 
-  EXPECT_DEATH(trans.jointToActuatorEffort(j_bad_size,  a_bad_size),  ".*");
-  EXPECT_DEATH(trans.jointToActuatorEffort(j_good_data, a_bad_size),  ".*");
-  EXPECT_DEATH(trans.jointToActuatorEffort(j_bad_size,  a_good_data), ".*");
+  EXPECT_DEATH(trans.jointToActuatorEffort(j_bad_size, a_bad_size), ".*");
+  EXPECT_DEATH(trans.jointToActuatorEffort(j_good_data, a_bad_size), ".*");
+  EXPECT_DEATH(trans.jointToActuatorEffort(j_bad_size, a_good_data), ".*");
 
-  EXPECT_DEATH(trans.jointToActuatorVelocity(j_bad_size,  a_bad_size),  ".*");
-  EXPECT_DEATH(trans.jointToActuatorVelocity(j_good_data, a_bad_size),  ".*");
-  EXPECT_DEATH(trans.jointToActuatorVelocity(j_bad_size,  a_good_data), ".*");
+  EXPECT_DEATH(trans.jointToActuatorVelocity(j_bad_size, a_bad_size), ".*");
+  EXPECT_DEATH(trans.jointToActuatorVelocity(j_good_data, a_bad_size), ".*");
+  EXPECT_DEATH(trans.jointToActuatorVelocity(j_bad_size, a_good_data), ".*");
 
-  EXPECT_DEATH(trans.jointToActuatorPosition(j_bad_size,  a_bad_size),  ".*");
-  EXPECT_DEATH(trans.jointToActuatorPosition(j_good_data, a_bad_size),  ".*");
-  EXPECT_DEATH(trans.jointToActuatorPosition(j_bad_size,  a_good_data), ".*");
+  EXPECT_DEATH(trans.jointToActuatorPosition(j_bad_size, a_bad_size), ".*");
+  EXPECT_DEATH(trans.jointToActuatorPosition(j_good_data, a_bad_size), ".*");
+  EXPECT_DEATH(trans.jointToActuatorPosition(j_bad_size, a_good_data), ".*");
 }
 #endif // NDEBUG
 
@@ -188,24 +197,24 @@ TEST(PreconditionsTest, AssertionTriggering)
 TEST(PreconditionsTest, accessorValidation)
 {
   vector<double> reduction(2);
-  reduction[0] =  2.0;
+  reduction[0] = 2.0;
   reduction[1] = -2.0;
 
   vector<double> jnt_offset(2);
-  jnt_offset[0] =  1.0;
+  jnt_offset[0] = 1.0;
   jnt_offset[1] = -1.0;
 
   vector<HeadTransmission::Limits> limits = limitsInstance();
 
   HeadTransmission trans(reduction,
-                             jnt_offset,
-                             limits);
+    jnt_offset,
+    limits);
 
   EXPECT_EQ(2, trans.numActuators());
   EXPECT_EQ(2, trans.numJoints());
-  EXPECT_EQ( 2.0, trans.getActuatorReduction()[0]);
+  EXPECT_EQ(2.0, trans.getActuatorReduction()[0]);
   EXPECT_EQ(-2.0, trans.getActuatorReduction()[1]);
-  EXPECT_EQ( 1.0, trans.getJointOffset()[0]);
+  EXPECT_EQ(1.0, trans.getJointOffset()[0]);
   EXPECT_EQ(-1.0, trans.getJointOffset()[1]);
   EXPECT_EQ(limits[0].min, trans.getLimitsVector()[0].min);
   EXPECT_EQ(limits[0].max, trans.getLimitsVector()[0].max);
@@ -221,23 +230,23 @@ class TransmissionSetup : public ::testing::Test
 {
 public:
   TransmissionSetup()
-    : a_val(),
-      j_val(),
-      a_vec(vector<double*>(2)),
-      j_vec(vector<double*>(2))
-   {
-     a_vec[0] = &a_val[0];
-     a_vec[1] = &a_val[1];
-     j_vec[0] = &j_val[0];
-     j_vec[1] = &j_val[1];
-   }
+  : a_val(),
+    j_val(),
+    a_vec(vector<double *>(2)),
+    j_vec(vector<double *>(2))
+  {
+    a_vec[0] = &a_val[0];
+    a_vec[1] = &a_val[1];
+    j_vec[0] = &j_val[0];
+    j_vec[1] = &j_val[1];
+  }
 
 protected:
   // Input/output transmission data
   double a_val[2];
   double j_val[2];
-  vector<double*> a_vec;
-  vector<double*> j_vec;
+  vector<double *> a_vec;
+  vector<double *> j_vec;
 };
 
 /// \brief Exercises the actuator->joint->actuator roundtrip, which should yield the identity map.
@@ -247,8 +256,9 @@ protected:
   /// \param trans Transmission instance.
   /// \param ref_val Reference value (effort, velocity or position) that will be transformed with the respective forward
   /// and inverse transmission transformations.
-  void testIdentityMap(HeadTransmission& trans,
-                       const vector<double>& ref_val)
+  void testIdentityMap(
+    HeadTransmission & trans,
+    const vector<double> & ref_val)
   {
     // Effort interface
     {
@@ -300,22 +310,19 @@ protected:
   }
 
   /// Generate a set of transmission instances with random combinations of actuator/joint reduction and joint offset.
-  static vector<HeadTransmission> createTestInstances(const vector<HeadTransmission>::size_type size)
+  static vector<HeadTransmission> createTestInstances(
+    const vector<HeadTransmission>::size_type size)
   {
     std::vector<HeadTransmission> out;
     out.reserve(size);
     RandomDoubleGenerator rand_gen(-1000.0, 1000.0);                                // NOTE: Magic value
 
-    while (out.size() < size)
-    {
-      try
-      {
+    while (out.size() < size) {
+      try {
         HeadTransmission trans(randomVector(2, rand_gen),
-                                   randomVector(2, rand_gen)); // NOTE: No limits are exercised here
+          randomVector(2, rand_gen));                          // NOTE: No limits are exercised here
         out.push_back(trans);
-      }
-      catch(const TransmissionInterfaceException&)
-      {
+      } catch (const TransmissionInterfaceException &) {
         // NOTE: If by chance a perfect zero is produced by the random number generator, construction will fail
         // We swallow the exception and move on to prevent a test crash.
       }
@@ -331,13 +338,11 @@ TEST_F(BlackBoxTest, IdentityMap)
   TransList trans_list = createTestInstances(100);                                  // NOTE: Magic value
 
   // Test different transmission configurations...
-  for (TransList::iterator it = trans_list.begin(); it != trans_list.end(); ++it)
-  {
+  for (TransList::iterator it = trans_list.begin(); it != trans_list.end(); ++it) {
     // ...and for each transmission, different input values
     RandomDoubleGenerator rand_gen(-1000.0, 1000.0);                                // NOTE: Magic value
     const unsigned int input_value_trials = 100;                                    // NOTE: Magic value
-    for (unsigned int i = 0; i < input_value_trials; ++i)
-    {
+    for (unsigned int i = 0; i < input_value_trials; ++i) {
       vector<double> input_value = randomVector(2, rand_gen);
       testIdentityMap(*it, input_value);
     }
@@ -408,7 +413,7 @@ TEST_F(WhiteBoxTest, MoveBothJoints)
 
   vector<double> joint_offset(2);
   joint_offset[0] = -1.0;
-  joint_offset[1] =  2.0;
+  joint_offset[1] = 2.0;
 
   HeadTransmission trans(reduction, joint_offset, limitsInstance()); // NOTE: Limits spec should be ignored
 
@@ -464,7 +469,7 @@ TEST_F(WhiteBoxTest, TestJntToActPosWithLimits)
 
   vector<double> joint_offset(2);
   joint_offset[0] = -1.0;
-  joint_offset[1] =  2.0;
+  joint_offset[1] = 2.0;
 
   HeadTransmission trans(reduction, joint_offset, limitsInstance());
 
@@ -493,7 +498,7 @@ TEST_F(WhiteBoxTest, TestJntToActPosWithLimits)
     j_data.position = j_vec;
 
     *j_vec[0] = -3.0;
-    *j_vec[1] =  2.0;
+    *j_vec[1] = 2.0;
 
     trans.jointToActuatorPosition(j_data, a_data);
     EXPECT_NEAR(-4.0, *a_data.position[0], EPS);
@@ -525,7 +530,7 @@ TEST_F(WhiteBoxTest, TestJntToActPosWithLimits)
     j_data.position = j_vec;
 
     *j_vec[0] = -2.0;
-    *j_vec[1] =  2.0;
+    *j_vec[1] = 2.0;
 
     trans.jointToActuatorPosition(j_data, a_data);
     EXPECT_NEAR(-2.0, *a_data.position[0], EPS);
@@ -557,7 +562,7 @@ TEST_F(WhiteBoxTest, TestJntToActPosWithLimits)
     j_data.position = j_vec;
 
     *j_vec[0] = -1.5;
-    *j_vec[1] =  2.0;
+    *j_vec[1] = 2.0;
 
     trans.jointToActuatorPosition(j_data, a_data);
     EXPECT_NEAR(-1.0, *a_data.position[0], EPS);
@@ -572,7 +577,7 @@ TEST_F(WhiteBoxTest, TestJntToActPosWithLimits)
     JointData j_data;
     j_data.position = j_vec;
 
-    *j_vec[0] =  0.25;
+    *j_vec[0] = 0.25;
     *j_vec[1] = -2.0;
 
     trans.jointToActuatorPosition(j_data, a_data);
@@ -588,8 +593,8 @@ TEST_F(WhiteBoxTest, TestJntToActPosWithLimits)
     JointData j_data;
     j_data.position = j_vec;
 
-    *j_vec[0] =  0.25;
-    *j_vec[1] =  2.0;
+    *j_vec[0] = 0.25;
+    *j_vec[1] = 2.0;
 
     trans.jointToActuatorPosition(j_data, a_data);
     EXPECT_NEAR(2.5, *a_data.position[0], EPS);
@@ -604,7 +609,7 @@ TEST_F(WhiteBoxTest, TestJntToActPosWithLimits)
     JointData j_data;
     j_data.position = j_vec;
 
-    *j_vec[0] =  1.5;
+    *j_vec[0] = 1.5;
     *j_vec[1] = -2.0;
 
     trans.jointToActuatorPosition(j_data, a_data);
@@ -620,8 +625,8 @@ TEST_F(WhiteBoxTest, TestJntToActPosWithLimits)
     JointData j_data;
     j_data.position = j_vec;
 
-    *j_vec[0] =  1.5;
-    *j_vec[1] =  2.0;
+    *j_vec[0] = 1.5;
+    *j_vec[1] = 2.0;
 
     trans.jointToActuatorPosition(j_data, a_data);
     EXPECT_NEAR(5.0, *a_data.position[0], EPS);
@@ -636,7 +641,7 @@ TEST_F(WhiteBoxTest, TestJntToActPosWithLimits)
     JointData j_data;
     j_data.position = j_vec;
 
-    *j_vec[0] =  2.0;
+    *j_vec[0] = 2.0;
     *j_vec[1] = -2.0;
 
     trans.jointToActuatorPosition(j_data, a_data);
@@ -652,8 +657,8 @@ TEST_F(WhiteBoxTest, TestJntToActPosWithLimits)
     JointData j_data;
     j_data.position = j_vec;
 
-    *j_vec[0] =  2.0;
-    *j_vec[1] =  2.0;
+    *j_vec[0] = 2.0;
+    *j_vec[1] = 2.0;
 
     trans.jointToActuatorPosition(j_data, a_data);
     EXPECT_NEAR(6.0, *a_data.position[0], EPS);
@@ -668,7 +673,7 @@ TEST_F(WhiteBoxTest, TestJntToActPosWithLimits)
     JointData j_data;
     j_data.position = j_vec;
 
-    *j_vec[0] =  3.0;
+    *j_vec[0] = 3.0;
     *j_vec[1] = -2.0;
 
     trans.jointToActuatorPosition(j_data, a_data);
@@ -684,8 +689,8 @@ TEST_F(WhiteBoxTest, TestJntToActPosWithLimits)
     JointData j_data;
     j_data.position = j_vec;
 
-    *j_vec[0] =  3.0;
-    *j_vec[1] =  2.0;
+    *j_vec[0] = 3.0;
+    *j_vec[1] = 2.0;
 
     trans.jointToActuatorPosition(j_data, a_data);
     EXPECT_NEAR(8.0, *a_data.position[0], EPS);
@@ -693,7 +698,7 @@ TEST_F(WhiteBoxTest, TestJntToActPosWithLimits)
   }
 }
 
-int main(int argc, char** argv)
+int main(int argc, char ** argv)
 {
   testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
