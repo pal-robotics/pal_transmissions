@@ -52,6 +52,12 @@ public:
 
   void joint_to_actuator() override;
 
+  const std::vector<double> & get_actuator_reduction() const {return act_reduction_;}
+  const std::vector<double> & get_joint_reduction() const {return jnt_reduction_;}
+  const std::vector<double> & get_joint_offset() const {return jnt_offset_;}
+  const std::unordered_map<std::string, int> & get_actuator_roles_map() {return actuator_roles_;}
+  const std::unordered_map<std::string, int> & get_joint_roles_map() {return joint_roles_;}
+
 protected:
   std::string get_handles_info() const;
 
@@ -106,9 +112,9 @@ HalfDifferentialTransmission::HalfDifferentialTransmission(
   joint_roles_(joint_roles),
   needsZeroCalibration_(true)
 {
-  if (
-    num_actuators() != act_reduction_.size() || num_joints() != jnt_reduction_.size() ||
-    num_joints() != jnt_offset_.size())
+  if (num_actuators() != act_reduction_.size() || num_joints() != jnt_reduction_.size() ||
+    num_joints() != jnt_offset_.size() || num_actuators() != actuator_roles_.size() ||
+    num_joints() != joint_roles_.size())
   {
     throw transmission_interface::Exception("Reduction and offset vectors must have size 2.");
   }
@@ -167,16 +173,23 @@ void HalfDifferentialTransmission::configure(
             transmission_interface::to_string(actuator_names));
   }
 
+  std::vector<std::string> ordered_joint_names(joint_names.size());
+  for (auto name : joint_names) {
+    ordered_joint_names[joint_roles_.at(name)] = name;
+  }
+
   joint_position_ =
-    get_ordered_handles(joint_handles, joint_names, hardware_interface::HW_IF_POSITION);
+    get_ordered_handles(joint_handles, ordered_joint_names, hardware_interface::HW_IF_POSITION);
   joint_velocity_ =
-    get_ordered_handles(joint_handles, joint_names, hardware_interface::HW_IF_VELOCITY);
-  joint_effort_ = get_ordered_handles(joint_handles, joint_names, hardware_interface::HW_IF_EFFORT);
+    get_ordered_handles(joint_handles, ordered_joint_names, hardware_interface::HW_IF_VELOCITY);
+  joint_effort_ = get_ordered_handles(
+    joint_handles, ordered_joint_names,
+    hardware_interface::HW_IF_EFFORT);
   joint_abs_position_ = get_ordered_handles(
-    joint_handles, joint_names,
+    joint_handles, ordered_joint_names,
     hardware_interface::HW_IF_FORCE);
   joint_torque_sensor_ = get_ordered_handles(
-    joint_handles, joint_names,
+    joint_handles, ordered_joint_names,
     hardware_interface::HW_IF_FORCE);
 
   if (joint_position_.size() != 2 && joint_velocity_.size() != 2 && joint_effort_.size() != 2 &&
@@ -187,19 +200,27 @@ void HalfDifferentialTransmission::configure(
             "Not enough valid or required joint handles were presented. \n" + get_handles_info());
   }
 
-  actuator_position_ =
-    get_ordered_handles(actuator_handles, actuator_names, hardware_interface::HW_IF_POSITION);
-  actuator_velocity_ =
-    get_ordered_handles(actuator_handles, actuator_names, hardware_interface::HW_IF_VELOCITY);
-  actuator_effort_ =
-    get_ordered_handles(actuator_handles, actuator_names, hardware_interface::HW_IF_EFFORT);
-  actuator_abs_position_ =
-    get_ordered_handles(actuator_handles, actuator_names, hardware_interface::HW_IF_FORCE);
-  actuator_torque_sensor_ =
-    get_ordered_handles(actuator_handles, actuator_names, hardware_interface::HW_IF_FORCE);
+  std::vector<std::string> ordered_actuator_names(actuator_names.size());
+  for (auto name : actuator_names) {
+    ordered_actuator_names[actuator_roles_[name]] = name;
+  }
 
-  if (
-    actuator_position_.size() != 2 && actuator_velocity_.size() != 2 &&
+  actuator_position_ =
+    get_ordered_handles(
+    actuator_handles, ordered_actuator_names,
+    hardware_interface::HW_IF_POSITION);
+  actuator_velocity_ =
+    get_ordered_handles(
+    actuator_handles, ordered_actuator_names,
+    hardware_interface::HW_IF_VELOCITY);
+  actuator_effort_ =
+    get_ordered_handles(actuator_handles, ordered_actuator_names, hardware_interface::HW_IF_EFFORT);
+  actuator_abs_position_ =
+    get_ordered_handles(actuator_handles, ordered_actuator_names, hardware_interface::HW_IF_FORCE);
+  actuator_torque_sensor_ =
+    get_ordered_handles(actuator_handles, ordered_actuator_names, hardware_interface::HW_IF_FORCE);
+
+  if (actuator_position_.size() != 2 && actuator_velocity_.size() != 2 &&
     actuator_effort_.size() != 2 && actuator_abs_position_.size() != 2 &&
     actuator_torque_sensor_.size() != 2)
   {
@@ -208,8 +229,7 @@ void HalfDifferentialTransmission::configure(
             get_handles_info());
   }
 
-  if (
-    joint_position_.size() != actuator_position_.size() &&
+  if (joint_position_.size() != actuator_position_.size() &&
     joint_velocity_.size() != actuator_velocity_.size() &&
     joint_effort_.size() != actuator_effort_.size() &&
     joint_abs_position_.size() != actuator_abs_position_.size() &&
