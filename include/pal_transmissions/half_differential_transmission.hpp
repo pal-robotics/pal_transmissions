@@ -242,53 +242,53 @@ void HalfDifferentialTransmission::configure(
 
 void HalfDifferentialTransmission::actuatorToJointEffort()
 {
-  joint_effort_[0].set_value(
-    (actuator_effort_[0].get_value() * act_reduction_[0]) * jnt_reduction_[0]);
-  joint_effort_[1].set_value(
-    ((actuator_effort_[1].get_value()) * act_reduction_[1] +
-    (joint_effort_[0].get_value() / jnt_reduction_[0])) * jnt_reduction_[1]);
+  (void)joint_effort_[0].set_value(
+    (actuator_effort_[0].get_optional().value() * act_reduction_[0]) * jnt_reduction_[0]);
+  (void)joint_effort_[1].set_value(
+    ((actuator_effort_[1].get_optional().value()) * act_reduction_[1] +
+    (joint_effort_[0].get_optional().value() / jnt_reduction_[0])) * jnt_reduction_[1]);
 }
 
 void HalfDifferentialTransmission::actuatorToJointVelocity()
 {
-  joint_velocity_[0].set_value(
-    (actuator_velocity_[0].get_value() / act_reduction_[0]) / jnt_reduction_[0]);
-  joint_velocity_[1].set_value(
-    (actuator_velocity_[1].get_value() / act_reduction_[1] -
-    actuator_velocity_[0].get_value() / act_reduction_[0]) / jnt_reduction_[1]);
+  (void)joint_velocity_[0].set_value(
+    (actuator_velocity_[0].get_optional().value() / act_reduction_[0]) / jnt_reduction_[0]);
+  (void)joint_velocity_[1].set_value(
+    (actuator_velocity_[1].get_optional().value() / act_reduction_[1] -
+    actuator_velocity_[0].get_optional().value() / act_reduction_[0]) / jnt_reduction_[1]);
 }
 
 void HalfDifferentialTransmission::actuatorToJointPosition()
 {
-  joint_position_[0].set_value(
-    (actuator_position_[0].get_value() / act_reduction_[0]) / jnt_reduction_[0] +
+  (void)joint_position_[0].set_value(
+    (actuator_position_[0].get_optional().value() / act_reduction_[0]) / jnt_reduction_[0] +
     jnt_offset_[0]);
-  joint_position_[1].set_value(
-    (actuator_position_[1].get_value() / act_reduction_[1] -
-    actuator_position_[0].get_value() / act_reduction_[0]) /
+  (void)joint_position_[1].set_value(
+    (actuator_position_[1].get_optional().value() / act_reduction_[1] -
+    actuator_position_[0].get_optional().value() / act_reduction_[0]) /
     jnt_reduction_[1] + jnt_offset_[1]);
 
   if (needsZeroCalibration_ && actuator_position_[0].get_optional().has_value() &&
     actuator_position_[1].get_optional().has_value() &&
     actuator_abs_position_[0].get_optional().has_value() &&
     actuator_abs_position_[1].get_optional().has_value() &&
-    std::isfinite(actuator_position_[0].get_value()) &&
-    std::isfinite(actuator_position_[1].get_value()) &&
-    std::isfinite(actuator_abs_position_[0].get_value()) &&
-    std::isfinite(actuator_abs_position_[1].get_value()))
+    std::isfinite(actuator_position_[0].get_optional().value()) &&
+    std::isfinite(actuator_position_[1].get_optional().value()) &&
+    std::isfinite(actuator_abs_position_[0].get_optional().value()) &&
+    std::isfinite(actuator_abs_position_[1].get_optional().value()))
   {
 
-    jnt_offset_[0] = actuator_abs_position_[0].get_value() -
-      joint_position_[0].get_value();
-    jnt_offset_[1] = actuator_abs_position_[1].get_value() -
-      joint_position_[1].get_value();
+    jnt_offset_[0] = actuator_abs_position_[0].get_optional().value() -
+      joint_position_[0].get_optional().value();
+    jnt_offset_[1] = actuator_abs_position_[1].get_optional().value() -
+      joint_position_[1].get_optional().value();
 
-    joint_position_[0].set_value(
-      (actuator_position_[0].get_value() / act_reduction_[0]) / ( jnt_reduction_[0]) +
+    (void)joint_position_[0].set_value(
+      (actuator_position_[0].get_optional().value() / act_reduction_[0]) / ( jnt_reduction_[0]) +
       jnt_offset_[0]);
-    joint_position_[1].set_value(
-      (actuator_position_[1].get_value() / act_reduction_[1] -
-      actuator_position_[0].get_value() / act_reduction_[0]) /
+    (void)joint_position_[1].set_value(
+      (actuator_position_[1].get_optional().value() / act_reduction_[1] -
+      actuator_position_[0].get_optional().value() / act_reduction_[0]) /
       (jnt_reduction_[1]) + jnt_offset_[1]);
 
     needsZeroCalibration_ = false;
@@ -299,49 +299,49 @@ void HalfDifferentialTransmission::actuatorToJointPosition()
 
 void HalfDifferentialTransmission::actuatorToJointAbsolutePosition()
 {
-  joint_abs_position_[0].set_value(actuator_abs_position_[0].get_value());
-  joint_abs_position_[1].set_value(actuator_abs_position_[1].get_value());
+  (void)joint_abs_position_[0].set_value(actuator_abs_position_[0].get_optional().value());
+  (void)joint_abs_position_[1].set_value(actuator_abs_position_[1].get_optional().value());
 }
 
 void HalfDifferentialTransmission::actuatorToJointTorqueSensor()
 {
-  joint_torque_sensor_[0].set_value(
-    (actuator_torque_sensor_[0].get_value() *
+  (void)joint_torque_sensor_[0].set_value(
+    (actuator_torque_sensor_[0].get_optional().value() *
     act_reduction_[0]));
-  joint_torque_sensor_[1].set_value(
+  (void)joint_torque_sensor_[1].set_value(
     jnt_reduction_[1] *
-    (actuator_torque_sensor_[0].get_value() * act_reduction_[0] +
-    actuator_torque_sensor_[1].get_value() * act_reduction_[1]));
+    (actuator_torque_sensor_[0].get_optional().value() * act_reduction_[0] +
+    actuator_torque_sensor_[1].get_optional().value() * act_reduction_[1]));
 }
 
 void HalfDifferentialTransmission::jointToActuatorEffort()
 {
-  actuator_effort_[0].set_value(
-    (joint_effort_[0].get_value() / jnt_reduction_[0]) / act_reduction_[0]);
-  actuator_effort_[1].set_value(
-    (joint_effort_[1].get_value() / act_reduction_[1] +
-    joint_effort_[0].get_value() / jnt_reduction_[0]) /
+  (void)actuator_effort_[0].set_value(
+    (joint_effort_[0].get_optional().value() / jnt_reduction_[0]) / act_reduction_[0]);
+  (void)actuator_effort_[1].set_value(
+    (joint_effort_[1].get_optional().value() / act_reduction_[1] +
+    joint_effort_[0].get_optional().value() / jnt_reduction_[0]) /
     jnt_reduction_[1]);
 }
 
 void HalfDifferentialTransmission::jointToActuatorVelocity()
 {
-  actuator_velocity_[0].set_value(
-    (joint_velocity_[0].get_value() * jnt_reduction_[0]) * act_reduction_[0]);
-  actuator_velocity_[1].set_value(
-    (( joint_velocity_[1].get_value()) * jnt_reduction_[1] +
-    (actuator_velocity_[0].get_value() / act_reduction_[0])) *
+  (void)actuator_velocity_[0].set_value(
+    (joint_velocity_[0].get_optional().value() * jnt_reduction_[0]) * act_reduction_[0]);
+  (void)actuator_velocity_[1].set_value(
+    (( joint_velocity_[1].get_optional().value()) * jnt_reduction_[1] +
+    (actuator_velocity_[0].get_optional().value() / act_reduction_[0])) *
     act_reduction_[1]);
 }
 
 void HalfDifferentialTransmission::jointToActuatorPosition()
 {
-  actuator_position_[0].set_value(
-    (joint_position_[0].get_value() * jnt_reduction_[0]) * act_reduction_[0] -
+  (void)actuator_position_[0].set_value(
+    (joint_position_[0].get_optional().value() * jnt_reduction_[0]) * act_reduction_[0] -
     jnt_offset_[0]);
-  actuator_position_[1].set_value(
-    (( joint_position_[1].get_value() - jnt_offset_[1]) * jnt_reduction_[1] +
-    (actuator_position_[0].get_value() / act_reduction_[0])) * act_reduction_[1]);
+  (void)actuator_position_[1].set_value(
+    (( joint_position_[1].get_optional().value() - jnt_offset_[1]) * jnt_reduction_[1] +
+    (actuator_position_[0].get_optional().value() / act_reduction_[0])) * act_reduction_[1]);
 }
 
 void HalfDifferentialTransmission::actuator_to_joint()
