@@ -346,10 +346,10 @@ void HalfDifferentialTransmission::jointToActuatorPosition()
 
 void HalfDifferentialTransmission::actuator_to_joint()
 {
+  actuatorToJointAbsolutePosition();
   actuatorToJointPosition();
   actuatorToJointVelocity();
   actuatorToJointEffort();
-  actuatorToJointAbsolutePosition();
   actuatorToJointTorqueSensor();
 }
 
