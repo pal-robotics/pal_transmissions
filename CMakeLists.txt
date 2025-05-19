@@ -20,10 +20,10 @@ if(BUILD_TESTING)
   find_package(ament_cmake_gmock REQUIRED)
   find_package(ros2_control_test_assets REQUIRED)
 
-  # ament_add_gmock(test_half_differential_transmission
-  #   test/half_differential_transmission_test.cpp
-  # )
-  # target_link_libraries(test_half_differential_transmission ${PROJECT_NAME}_loader_plugins)
+  ament_add_gmock(test_half_differential_transmission
+    test/half_differential_transmission_test.cpp
+  )
+  target_link_libraries(test_half_differential_transmission ${PROJECT_NAME}_loader_plugins)
 
   ament_add_gmock(test_half_differential_transmission_loader
     test/half_differential_transmission_loader_test.cpp

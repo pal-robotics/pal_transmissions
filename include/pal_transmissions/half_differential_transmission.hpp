@@ -152,6 +152,8 @@ void HalfDifferentialTransmission::configure(
   const std::vector<transmission_interface::JointHandle> & joint_handles,
   const std::vector<transmission_interface::ActuatorHandle> & actuator_handles)
 {
+  needsZeroCalibration_ = true;
+
   if (joint_handles.empty()) {
     throw transmission_interface::Exception("No joint handles were passed in");
   }
@@ -187,7 +189,7 @@ void HalfDifferentialTransmission::configure(
     hardware_interface::HW_IF_EFFORT);
   joint_abs_position_ = get_ordered_handles(
     joint_handles, ordered_joint_names,
-    hardware_interface::HW_IF_FORCE);
+    hardware_interface::HW_IF_ACCELERATION);
   joint_torque_sensor_ = get_ordered_handles(
     joint_handles, ordered_joint_names,
     hardware_interface::HW_IF_FORCE);
@@ -202,7 +204,7 @@ void HalfDifferentialTransmission::configure(
 
   std::vector<std::string> ordered_actuator_names(actuator_names.size());
   for (auto name : actuator_names) {
-    ordered_actuator_names[actuator_roles_[name]] = name;
+    ordered_actuator_names[actuator_roles_.at(name)] = name;
   }
 
   actuator_position_ =
@@ -216,7 +218,9 @@ void HalfDifferentialTransmission::configure(
   actuator_effort_ =
     get_ordered_handles(actuator_handles, ordered_actuator_names, hardware_interface::HW_IF_EFFORT);
   actuator_abs_position_ =
-    get_ordered_handles(actuator_handles, ordered_actuator_names, hardware_interface::HW_IF_FORCE);
+    get_ordered_handles(
+    actuator_handles, ordered_actuator_names,
+    hardware_interface::HW_IF_ACCELERATION);
   actuator_torque_sensor_ =
     get_ordered_handles(actuator_handles, ordered_actuator_names, hardware_interface::HW_IF_FORCE);
 
@@ -245,7 +249,7 @@ void HalfDifferentialTransmission::actuatorToJointEffort()
   (void)joint_effort_[0].set_value(
     (actuator_effort_[0].get_optional().value() * act_reduction_[0]) * jnt_reduction_[0]);
   (void)joint_effort_[1].set_value(
-    ((actuator_effort_[1].get_optional().value()) * act_reduction_[1] +
+      ((actuator_effort_[1].get_optional().value() * act_reduction_[1]) +
     (joint_effort_[0].get_optional().value() / jnt_reduction_[0])) * jnt_reduction_[1]);
 }
 
@@ -278,6 +282,7 @@ void HalfDifferentialTransmission::actuatorToJointPosition()
     std::isfinite(actuator_abs_position_[1].get_optional().value()))
   {
 
+    // @Note: This is always zero because absolute is equal to joint and actuator starts with zero!!
     jnt_offset_[0] = actuator_abs_position_[0].get_optional().value() -
       joint_position_[0].get_optional().value();
     jnt_offset_[1] = actuator_abs_position_[1].get_optional().value() -
@@ -301,6 +306,8 @@ void HalfDifferentialTransmission::actuatorToJointAbsolutePosition()
 {
   (void)joint_abs_position_[0].set_value(actuator_abs_position_[0].get_optional().value());
   (void)joint_abs_position_[1].set_value(actuator_abs_position_[1].get_optional().value());
+  (void)joint_position_[0].set_value(actuator_abs_position_[0].get_optional().value());
+  (void)joint_position_[1].set_value(actuator_abs_position_[1].get_optional().value());
 }
 
 void HalfDifferentialTransmission::actuatorToJointTorqueSensor()
@@ -318,10 +325,16 @@ void HalfDifferentialTransmission::jointToActuatorEffort()
 {
   (void)actuator_effort_[0].set_value(
     (joint_effort_[0].get_optional().value() / jnt_reduction_[0]) / act_reduction_[0]);
+  // @Note This equation is not correct. This one is not bijective.
   (void)actuator_effort_[1].set_value(
     (joint_effort_[1].get_optional().value() / act_reduction_[1] +
     joint_effort_[0].get_optional().value() / jnt_reduction_[0]) /
     jnt_reduction_[1]);
+  // @Note This one is bijective.
+  // (void)actuator_effort_[1].set_value(
+  //     (joint_effort_[1].get_optional().value() / jnt_reduction_[1] -
+  //      joint_effort_[0].get_optional().value() / jnt_reduction_[0]) /
+  //     act_reduction_[1]);
 }
 
 void HalfDifferentialTransmission::jointToActuatorVelocity()
@@ -336,6 +349,7 @@ void HalfDifferentialTransmission::jointToActuatorVelocity()
 
 void HalfDifferentialTransmission::jointToActuatorPosition()
 {
+  // @Note This equation is not correct. This one is not bijective.
   (void)actuator_position_[0].set_value(
     (joint_position_[0].get_optional().value() * jnt_reduction_[0]) * act_reduction_[0] -
     jnt_offset_[0]);
