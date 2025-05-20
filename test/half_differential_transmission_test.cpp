@@ -32,8 +32,8 @@ protected:
   {
     pal_log::PalLog::init();
 
-    act_reduction_ = {2.0, 3.0};
-    jnt_reduction_ = {1.5, 2.5};
+      act_reduction_ = {2.0, 3.0}; // {1.0, 1.0};
+    jnt_reduction_ = {4.0, 8.0}; // {1.0, 2.0};
     jnt_offset_ = {0.0, 0.0}; //{0.1, -0.2};
 
     actuator_roles_ = {{"motor1", 0}, {"motor2", 1}};
@@ -106,6 +106,53 @@ TEST_F(HalfDifferentialTransmissionTest, NotInitialized)
 {
   ASSERT_NO_THROW(transmission->actuator_to_joint());
   ASSERT_NO_THROW(transmission->joint_to_actuator());
+}
+
+TEST_F(HalfDifferentialTransmissionTest, Bijectivity)
+{
+  const int num_tests = 100;
+
+  std::mt19937 rng(42);    // Fixed seed for reproducibility
+  std::uniform_real_distribution<double> dist(-10.0, 10.0);
+
+  for (int i = 0; i < num_tests; ++i) {
+
+    double a0_pos = dist(rng);
+    double a1_pos = dist(rng);
+    double a0_vel = dist(rng);
+    double a1_vel = dist(rng);
+    double a0_eff = dist(rng);
+    double a1_eff = dist(rng);
+    double a0_abs = dist(rng);
+    double a1_abs = dist(rng);
+
+    // Random actuator values
+    actuator_position_handles_[0] = a0_pos;
+    actuator_position_handles_[1] = a1_pos;
+    actuator_velocity_handles_[0] = a0_vel;
+    actuator_velocity_handles_[1] = a1_vel;
+    actuator_effort_handles_[0] = a0_eff;
+    actuator_effort_handles_[1] = a1_eff;
+    actuator_abs_position_handles_[0] = a0_abs;
+    actuator_abs_position_handles_[1] = a1_abs;
+
+    // Forward
+    transmission->actuator_to_joint();
+
+    EXPECT_NEAR(joint_abs_position_handles_[0], actuator_abs_position_handles_[0], TOLERANCE);
+    EXPECT_NEAR(joint_abs_position_handles_[1], actuator_abs_position_handles_[1], TOLERANCE);
+
+    // Backward
+    transmission->joint_to_actuator();
+
+    // Compare original actuator values with results
+    EXPECT_NEAR(actuator_position_handles_[0], a0_pos, TOLERANCE);
+    EXPECT_NEAR(actuator_position_handles_[1], a1_pos, TOLERANCE);
+    EXPECT_NEAR(actuator_velocity_handles_[0], a0_vel, TOLERANCE);
+    EXPECT_NEAR(actuator_velocity_handles_[1], a1_vel, TOLERANCE);
+    EXPECT_NEAR(actuator_effort_handles_[0], a0_eff, TOLERANCE);
+    EXPECT_NEAR(actuator_effort_handles_[1], a1_eff, TOLERANCE);
+  }
 }
 
 /*
@@ -261,49 +308,3 @@ TEST_F(HalfDifferentialTransmissionTest, FullActuatorToJointAndBackValidation)
   EXPECT_NEAR(actuator_handles[5].get_optional().value(), expected_a1_eff, TOLERANCE);
 }
 */
-
-TEST_F(HalfDifferentialTransmissionTest, Bijectivity)
-{
-  const int num_tests = 1;
-
-  std::mt19937 rng(42);    // Fixed seed for reproducibility
-  std::uniform_real_distribution<double> dist(-10.0, 10.0);
-
-  for (int i = 0; i < num_tests; ++i) {
-
-    double a0_pos = dist(rng);
-    double a1_pos = dist(rng);
-    double a0_vel = dist(rng);
-    double a1_vel = dist(rng);
-    double a0_eff = dist(rng);
-    double a1_eff = dist(rng);
-
-    // Random actuator values
-    actuator_position_handles_[0] = a0_pos;
-    actuator_position_handles_[1] = a1_pos;
-    actuator_velocity_handles_[0] = a0_vel;
-    actuator_velocity_handles_[1] = a1_vel;
-    actuator_effort_handles_[0] = a0_eff;
-    actuator_effort_handles_[1] = a1_eff;
-    actuator_abs_position_handles_[0] = 0.0;
-    actuator_abs_position_handles_[1] = 0.0;
-
-    // Forward
-    transmission->actuator_to_joint();
-
-    EXPECT_NEAR(joint_abs_position_handles_[0], actuator_abs_position_handles_[0], TOLERANCE);
-    EXPECT_NEAR(joint_abs_position_handles_[1], actuator_abs_position_handles_[1], TOLERANCE);
-
-    // Backward
-    transmission->joint_to_actuator();
-
-    // Compare original actuator values with results
-    EXPECT_NEAR(actuator_position_handles_[0], a0_pos, TOLERANCE);
-    EXPECT_NEAR(actuator_position_handles_[1], a1_pos, TOLERANCE);
-    EXPECT_NEAR(actuator_velocity_handles_[0], a0_vel, TOLERANCE);
-    EXPECT_NEAR(actuator_velocity_handles_[1], a1_vel, TOLERANCE);
-    EXPECT_NEAR(actuator_effort_handles_[0], a0_eff, TOLERANCE);
-    // @Note This one is not bijective.
-    // EXPECT_NEAR(actuator_effort_handles_[1], a1_eff, TOLERANCE);
-  }
-}

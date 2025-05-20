@@ -249,7 +249,7 @@ void HalfDifferentialTransmission::actuatorToJointEffort()
   (void)joint_effort_[0].set_value(
     (actuator_effort_[0].get_optional().value() * act_reduction_[0]) * jnt_reduction_[0]);
   (void)joint_effort_[1].set_value(
-      ((actuator_effort_[1].get_optional().value() * act_reduction_[1]) +
+    ((actuator_effort_[1].get_optional().value() * act_reduction_[1]) +
     (joint_effort_[0].get_optional().value() / jnt_reduction_[0])) * jnt_reduction_[1]);
 }
 
@@ -306,8 +306,6 @@ void HalfDifferentialTransmission::actuatorToJointAbsolutePosition()
 {
   (void)joint_abs_position_[0].set_value(actuator_abs_position_[0].get_optional().value());
   (void)joint_abs_position_[1].set_value(actuator_abs_position_[1].get_optional().value());
-  (void)joint_position_[0].set_value(actuator_abs_position_[0].get_optional().value());
-  (void)joint_position_[1].set_value(actuator_abs_position_[1].get_optional().value());
 }
 
 void HalfDifferentialTransmission::actuatorToJointTorqueSensor()
@@ -326,15 +324,15 @@ void HalfDifferentialTransmission::jointToActuatorEffort()
   (void)actuator_effort_[0].set_value(
     (joint_effort_[0].get_optional().value() / jnt_reduction_[0]) / act_reduction_[0]);
   // @Note This equation is not correct. This one is not bijective.
-  (void)actuator_effort_[1].set_value(
-    (joint_effort_[1].get_optional().value() / act_reduction_[1] +
-    joint_effort_[0].get_optional().value() / jnt_reduction_[0]) /
-    jnt_reduction_[1]);
-  // @Note This one is bijective.
   // (void)actuator_effort_[1].set_value(
-  //     (joint_effort_[1].get_optional().value() / jnt_reduction_[1] -
-  //      joint_effort_[0].get_optional().value() / jnt_reduction_[0]) /
-  //     act_reduction_[1]);
+  //   (joint_effort_[1].get_optional().value() / act_reduction_[1] +
+  //   joint_effort_[0].get_optional().value() / jnt_reduction_[0]) /
+  //   jnt_reduction_[1]);
+  // @Note This one is bijective.
+  (void)actuator_effort_[1].set_value(
+      (joint_effort_[1].get_optional().value() / jnt_reduction_[1] -
+       joint_effort_[0].get_optional().value() / jnt_reduction_[0]) /
+      act_reduction_[1]);
 }
 
 void HalfDifferentialTransmission::jointToActuatorVelocity()
@@ -350,9 +348,13 @@ void HalfDifferentialTransmission::jointToActuatorVelocity()
 void HalfDifferentialTransmission::jointToActuatorPosition()
 {
   // @Note This equation is not correct. This one is not bijective.
+  // (void)actuator_position_[0].set_value(
+  //   (joint_position_[0].get_optional().value() * jnt_reduction_[0]) * act_reduction_[0] -
+  //   jnt_offset_[0]);
+  // @Note This one is bijective.
   (void)actuator_position_[0].set_value(
-    (joint_position_[0].get_optional().value() * jnt_reduction_[0]) * act_reduction_[0] -
-    jnt_offset_[0]);
+    ((joint_position_[0].get_optional().value() - jnt_offset_[0]) * jnt_reduction_[0]) *
+    act_reduction_[0]);
   (void)actuator_position_[1].set_value(
     (( joint_position_[1].get_optional().value() - jnt_offset_[1]) * jnt_reduction_[1] +
     (actuator_position_[0].get_optional().value() / act_reduction_[0])) * act_reduction_[1]);
