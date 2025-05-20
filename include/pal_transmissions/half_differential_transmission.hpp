@@ -296,6 +296,9 @@ void HalfDifferentialTransmission::actuatorToJointPosition()
       actuator_position_[0].get_optional().value() / act_reduction_[0]) /
       (jnt_reduction_[1]) + jnt_offset_[1]);
 
+    PL_DEBUG_STREAM(pal_log::PalLog::get_logger(), "Joint offset 0: " << jnt_offset_[0]);
+    PL_DEBUG_STREAM(pal_log::PalLog::get_logger(), "Joint offset 1: " << jnt_offset_[1]);
+
     needsZeroCalibration_ = false;
   } else if (needsZeroCalibration_) {
     PL_INFO_THROTTLE(pal_log::PalLog::get_logger(), 1s, "Waiting for head initialization");
@@ -330,9 +333,9 @@ void HalfDifferentialTransmission::jointToActuatorEffort()
   //   jnt_reduction_[1]);
   // @Note This one is bijective.
   (void)actuator_effort_[1].set_value(
-      (joint_effort_[1].get_optional().value() / jnt_reduction_[1] -
-       joint_effort_[0].get_optional().value() / jnt_reduction_[0]) /
-      act_reduction_[1]);
+    (joint_effort_[1].get_optional().value() / jnt_reduction_[1] -
+    joint_effort_[0].get_optional().value() / jnt_reduction_[0]) /
+    act_reduction_[1]);
 }
 
 void HalfDifferentialTransmission::jointToActuatorVelocity()
