@@ -54,52 +54,52 @@ TEST(HeadTransmissionLoaderTest, fullSpec)
   ASSERT_TRUE(0 != transmission_loader);
 
   TransmissionPtr transmission;
-  const TransmissionInfo& info = infos.front();
+  const TransmissionInfo & info = infos.front();
   transmission = transmission_loader->load(info);
   ASSERT_TRUE(0 != transmission);
 
   // Validate transmission
-  HeadTransmission* tran = dynamic_cast<HeadTransmission*>(transmission.get());
+  HeadTransmission * tran = dynamic_cast<HeadTransmission *>(transmission.get());
   ASSERT_TRUE(0 != tran);
 
-  const std::vector<double>& actuator_reduction = tran->getActuatorReduction();
+  const std::vector<double> & actuator_reduction = tran->getActuatorReduction();
   EXPECT_EQ(2.0, actuator_reduction[0]);
   EXPECT_EQ(4.0, actuator_reduction[1]);
 
-  const std::vector<double>& joint_offset = tran->getJointOffset();
-  EXPECT_EQ( 1.0, joint_offset[0]);
+  const std::vector<double> & joint_offset = tran->getJointOffset();
+  EXPECT_EQ(1.0, joint_offset[0]);
   EXPECT_EQ(-1.0, joint_offset[1]);
 
   const double max_d = std::numeric_limits<double>::max();
   const double min_d = -max_d;
-  const std::vector<HeadTransmission::Limits>& limits_vec = tran->getLimitsVector();
+  const std::vector<HeadTransmission::Limits> & limits_vec = tran->getLimitsVector();
   ASSERT_EQ(7, limits_vec.size());
 
-  EXPECT_EQ( -3.0, limits_vec[0].key);
+  EXPECT_EQ(-3.0, limits_vec[0].key);
   EXPECT_EQ(min_d, limits_vec[0].min);
-  EXPECT_EQ(  0.0, limits_vec[0].max);
+  EXPECT_EQ(0.0, limits_vec[0].max);
 
-  EXPECT_EQ( -2.0, limits_vec[1].key);
-  EXPECT_EQ(  0.0, limits_vec[1].min);
-  EXPECT_EQ(  0.0, limits_vec[1].max);
+  EXPECT_EQ(-2.0, limits_vec[1].key);
+  EXPECT_EQ(0.0, limits_vec[1].min);
+  EXPECT_EQ(0.0, limits_vec[1].max);
 
-  EXPECT_EQ( -1.0, limits_vec[2].key);
-  EXPECT_EQ( -1.0, limits_vec[2].min);
-  EXPECT_EQ(  1.0, limits_vec[2].max);
+  EXPECT_EQ(-1.0, limits_vec[2].key);
+  EXPECT_EQ(-1.0, limits_vec[2].min);
+  EXPECT_EQ(1.0, limits_vec[2].max);
 
-  EXPECT_EQ(  1.0, limits_vec[3].key);
-  EXPECT_EQ( -2.0, limits_vec[3].min);
-  EXPECT_EQ(  2.0, limits_vec[3].max);
+  EXPECT_EQ(1.0, limits_vec[3].key);
+  EXPECT_EQ(-2.0, limits_vec[3].min);
+  EXPECT_EQ(2.0, limits_vec[3].max);
 
-  EXPECT_EQ(  2.0, limits_vec[4].key);
-  EXPECT_EQ(  0.0, limits_vec[4].min);
-  EXPECT_EQ(  0.0, limits_vec[4].max);
+  EXPECT_EQ(2.0, limits_vec[4].key);
+  EXPECT_EQ(0.0, limits_vec[4].min);
+  EXPECT_EQ(0.0, limits_vec[4].max);
 
-  EXPECT_EQ(  3.0, limits_vec[5].key);
-  EXPECT_EQ(  0.0, limits_vec[5].min);
+  EXPECT_EQ(3.0, limits_vec[5].key);
+  EXPECT_EQ(0.0, limits_vec[5].min);
   EXPECT_EQ(max_d, limits_vec[5].max);
 
-  EXPECT_EQ(  4.0, limits_vec[6].key);
+  EXPECT_EQ(4.0, limits_vec[6].key);
   EXPECT_EQ(min_d, limits_vec[6].min);
   EXPECT_EQ(max_d, limits_vec[6].max);
 }
@@ -107,7 +107,8 @@ TEST(HeadTransmissionLoaderTest, fullSpec)
 TEST(HeadTransmissionLoaderTest, minimalSpec)
 {
   // Parse transmission info
-  std::vector<TransmissionInfo> infos = parseUrdf("test/urdf/head_transmission_loader_minimal.urdf");
+  std::vector<TransmissionInfo> infos =
+    parseUrdf("test/urdf/head_transmission_loader_minimal.urdf");
   ASSERT_EQ(1, infos.size());
 
   // Transmission loader
@@ -116,18 +117,18 @@ TEST(HeadTransmissionLoaderTest, minimalSpec)
   ASSERT_TRUE(0 != transmission_loader);
 
   TransmissionPtr transmission;
-  const TransmissionInfo& info = infos.front();
+  const TransmissionInfo & info = infos.front();
   transmission = transmission_loader->load(info);
   ASSERT_TRUE(0 != transmission);
 
   // Validate transmission
-  HeadTransmission* tran = dynamic_cast<HeadTransmission*>(transmission.get());
+  HeadTransmission * tran = dynamic_cast<HeadTransmission *>(transmission.get());
   ASSERT_TRUE(0 != tran);
-  const std::vector<double>& actuator_reduction = tran->getActuatorReduction();
+  const std::vector<double> & actuator_reduction = tran->getActuatorReduction();
   EXPECT_EQ(2.0, actuator_reduction[0]);
   EXPECT_EQ(4.0, actuator_reduction[1]);
 
-  const std::vector<double>& joint_offset = tran->getJointOffset();
+  const std::vector<double> & joint_offset = tran->getJointOffset();
   EXPECT_EQ(0.0, joint_offset[0]);
   EXPECT_EQ(0.0, joint_offset[1]);
 
@@ -137,7 +138,8 @@ TEST(HeadTransmissionLoaderTest, minimalSpec)
 TEST(HeadTransmissionLoaderTest, flippedSpec)
 {
   // Parse transmission info
-  std::vector<TransmissionInfo> infos = parseUrdf("test/urdf/head_transmission_loader_full_flipped.urdf");
+  std::vector<TransmissionInfo> infos = parseUrdf(
+    "test/urdf/head_transmission_loader_full_flipped.urdf");
   ASSERT_EQ(1, infos.size());
 
   // Transmission loader
@@ -146,19 +148,19 @@ TEST(HeadTransmissionLoaderTest, flippedSpec)
   ASSERT_TRUE(0 != transmission_loader);
 
   TransmissionPtr transmission;
-  const TransmissionInfo& info = infos.front();
+  const TransmissionInfo & info = infos.front();
   transmission = transmission_loader->load(info);
   ASSERT_TRUE(0 != transmission);
 
   // Validate transmission
-  HeadTransmission* tran = dynamic_cast<HeadTransmission*>(transmission.get());
+  HeadTransmission * tran = dynamic_cast<HeadTransmission *>(transmission.get());
   ASSERT_TRUE(0 != tran);
-  const std::vector<double>& actuator_reduction = tran->getActuatorReduction();
+  const std::vector<double> & actuator_reduction = tran->getActuatorReduction();
   EXPECT_EQ(2.0, actuator_reduction[0]);
   EXPECT_EQ(4.0, actuator_reduction[1]);
 
-  const std::vector<double>& joint_offset = tran->getJointOffset();
-  EXPECT_EQ( 1.0, joint_offset[0]);
+  const std::vector<double> & joint_offset = tran->getJointOffset();
+  EXPECT_EQ(1.0, joint_offset[0]);
   EXPECT_EQ(-1.0, joint_offset[1]);
 
   EXPECT_EQ(7, tran->getLimitsVector().size());
@@ -167,7 +169,8 @@ TEST(HeadTransmissionLoaderTest, flippedSpec)
 TEST(HeadTransmissionLoaderTest, invalidSpec)
 {
   // Parse transmission info
-  std::vector<TransmissionInfo> infos = parseUrdf("test/urdf/head_transmission_loader_invalid.urdf");
+  std::vector<TransmissionInfo> infos =
+    parseUrdf("test/urdf/head_transmission_loader_invalid.urdf");
   ASSERT_EQ(16, infos.size());
 
   // Transmission loader
@@ -175,7 +178,7 @@ TEST(HeadTransmissionLoaderTest, invalidSpec)
   boost::shared_ptr<TransmissionLoader> transmission_loader = loader.create(infos.front().type_);
   ASSERT_TRUE(0 != transmission_loader);
 
-  BOOST_FOREACH(const TransmissionInfo& info, infos)
+  BOOST_FOREACH(const TransmissionInfo & info, infos)
   {
     TransmissionPtr transmission;
     transmission = transmission_loader->load(info);
@@ -183,7 +186,7 @@ TEST(HeadTransmissionLoaderTest, invalidSpec)
   }
 }
 
-int main(int argc, char** argv)
+int main(int argc, char ** argv)
 {
   testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();

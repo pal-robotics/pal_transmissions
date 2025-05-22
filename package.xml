@@ -1,32 +1,38 @@
 <?xml version="1.0"?>
-<package format="2">
+<package format="3">
   <name>pal_transmissions</name>
-  <version>0.2.5</version>
+  <version>1.0.0</version>
   <description>
-    REEM / REEM-C head mechanical transmission model.
-
-    The transmission models the neck reducers, and the joint position limits of
-    head_2 as a function of head_1.
+    Open source ROS Control transmission for PAL Robots
   </description>
-  <maintainer email="adolfo.rodriguez@pal-robotics.com">Adolfo Rodriguez Tsouroukdissian</maintainer>
-  <author email="adolfo.rodriguez@pal-robotics.com">Adolfo Rodriguez Tsouroukdissian</author>
-  <license>Modified BSD</license>
+  <maintainer email="adria.roig@pal-robotics.com">Adria Roig</maintainer>
+  <author email="adria.roig@pal-robotics.com">Adria Roig</author>
+  
+  <license>Apache License 2.0</license>
 
-  <buildtool_depend>catkin</buildtool_depend>
-
-  <build_depend>cmake_modules</build_depend>
+  <buildtool_depend>ament_cmake_auto</buildtool_depend>
+  
+  <build_depend>rclcpp</build_depend>
+  <build_depend>controller_interface</build_depend>
   <build_depend>hardware_interface</build_depend>
+  <build_depend>pluginlib</build_depend>
+  <build_depend>resource_retriever</build_depend>
+  <build_depend>transmission_interface</build_depend>
+  <build_depend>pal_logger</build_depend>
 
-  <depend>pluginlib</depend>
-  <depend>roscpp</depend>
-  <depend>tinyxml</depend>
-  <depend>transmission_interface</depend>
+  <build_export_depend>rclcpp</build_export_depend>
+  <build_export_depend>controller_interface</build_export_depend>
+  <build_export_depend>hardware_interface</build_export_depend>
+  <build_export_depend>pluginlib</build_export_depend>
+  <build_export_depend>resource_retriever</build_export_depend>
+  <build_export_depend>transmission_interface</build_export_depend>
 
-  <test_depend>resource_retriever</test_depend>
+  <test_depend>ament_cmake_gmock</test_depend>
+  <test_depend>ros2_control_test_assets</test_depend>
 
-  <export>
-    <cpp cflags="-I${prefix}/include"/>
-    <rosdoc config="rosdoc.yaml"/>
-    <transmission_interface plugin="${prefix}/ros_control_plugins.xml" />
-  </export>
+<export>
+  <build_type>ament_cmake</build_type>
+</export>
+
+
 </package>

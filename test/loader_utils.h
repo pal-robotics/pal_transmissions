@@ -22,23 +22,25 @@ typedef TransmissionLoader::TransmissionPtr TransmissionPtr;
 struct TransmissionPluginLoader
 {
   TransmissionPluginLoader()
-    :class_loader_("transmission_interface", "transmission_interface::TransmissionLoader")
+    : class_loader_("transmission_interface", "transmission_interface::TransmissionLoader")
   {
   }
 
-  boost::shared_ptr<TransmissionLoader> create(const std::string& type)
+  boost::shared_ptr < TransmissionLoader > create(const std::string & type)
   {
 
     try
     {
       return class_loader_.createInstance(type);
     }
-    catch(...) {return boost::shared_ptr<TransmissionLoader>();}
+    catch(...) {
+      return boost::shared_ptr < TransmissionLoader > ();
+    }
   }
 
 private:
   //must keep it alive because instance destroyers need it
-  pluginlib::ClassLoader<TransmissionLoader>  class_loader_;
+  pluginlib::ClassLoader < TransmissionLoader > class_loader_;
 };
 
 #endif // header guard
