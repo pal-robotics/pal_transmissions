@@ -26,7 +26,6 @@
   <build_export_depend>pluginlib</build_export_depend>
   <build_export_depend>resource_retriever</build_export_depend>
   <build_export_depend>transmission_interface</build_export_depend>
-  <build_export_depend>pal_logger</build_export_depend>
 
   <test_depend>ament_cmake_gmock</test_depend>
   <test_depend>ros2_control_test_assets</test_depend>

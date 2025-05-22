@@ -23,9 +23,7 @@
 #include "transmission_interface/accessor.hpp"
 #include "transmission_interface/exception.hpp"
 #include "pal_logger/pal_logger.hpp"
-
-using namespace std::literals::chrono_literals;
-
+#include "rclcpp/logging.hpp"
 
 namespace pal_transmissions
 {
@@ -67,9 +65,9 @@ protected:
 
   void actuatorToJointEffort();
 
-  void actuatorToJointAbsolutePosition();
+  // void actuatorToJointAbsolutePosition();
 
-  void actuatorToJointTorqueSensor();
+  // void actuatorToJointTorqueSensor();
 
   void jointToActuatorPosition();
 
@@ -89,14 +87,17 @@ protected:
   std::vector<transmission_interface::JointHandle> joint_position_;
   std::vector<transmission_interface::JointHandle> joint_velocity_;
   std::vector<transmission_interface::JointHandle> joint_effort_;
-  std::vector<transmission_interface::JointHandle> joint_abs_position_;
-  std::vector<transmission_interface::JointHandle> joint_torque_sensor_;
+  // std::vector<transmission_interface::JointHandle> joint_abs_position_;
+  // std::vector<transmission_interface::JointHandle> joint_torque_sensor_;
 
   std::vector<transmission_interface::ActuatorHandle> actuator_position_;
   std::vector<transmission_interface::ActuatorHandle> actuator_velocity_;
   std::vector<transmission_interface::ActuatorHandle> actuator_effort_;
   std::vector<transmission_interface::ActuatorHandle> actuator_abs_position_;
-  std::vector<transmission_interface::ActuatorHandle> actuator_torque_sensor_;
+  // std::vector<transmission_interface::ActuatorHandle> actuator_torque_sensor_;
+
+  rclcpp::Clock::SharedPtr clock_;
+
 };
 
 HalfDifferentialTransmission::HalfDifferentialTransmission(
@@ -126,6 +127,9 @@ HalfDifferentialTransmission::HalfDifferentialTransmission(
   {
     throw transmission_interface::Exception("Transmission reduction ratios cannot be zero.");
   }
+
+  clock_ = std::make_shared<rclcpp::Clock>(RCL_STEADY_TIME);
+
 }
 
 std::string HalfDifferentialTransmission::get_handles_info() const
@@ -187,17 +191,16 @@ void HalfDifferentialTransmission::configure(
   joint_effort_ = get_ordered_handles(
     joint_handles, ordered_joint_names,
     hardware_interface::HW_IF_EFFORT);
-  joint_abs_position_ = get_ordered_handles(
-    joint_handles, ordered_joint_names,
-    hardware_interface::HW_IF_ACCELERATION);
-  joint_torque_sensor_ = get_ordered_handles(
-    joint_handles, ordered_joint_names,
-    hardware_interface::HW_IF_FORCE);
+  // joint_abs_position_ = get_ordered_handles(
+  //   joint_handles, ordered_joint_names,
+  //   "absolute_position");
+  // joint_torque_sensor_ = get_ordered_handles(
+  //   joint_handles, ordered_joint_names,
+  //   "torque");
 
-  if (joint_position_.size() != 2 && joint_velocity_.size() != 2 && joint_effort_.size() != 2 &&
-    joint_abs_position_.size() != 2 &&
-    joint_torque_sensor_.size() != 2)
-  {
+  if (joint_position_.size() != 2 && joint_velocity_.size() != 2 && joint_effort_.size() != 2) {
+    // joint_abs_position_.size() != 2 &&
+    // joint_torque_sensor_.size() != 2)
     throw transmission_interface::Exception(
             "Not enough valid or required joint handles were presented. \n" + get_handles_info());
   }
@@ -220,13 +223,13 @@ void HalfDifferentialTransmission::configure(
   actuator_abs_position_ =
     get_ordered_handles(
     actuator_handles, ordered_actuator_names,
-    hardware_interface::HW_IF_ACCELERATION);
-  actuator_torque_sensor_ =
-    get_ordered_handles(actuator_handles, ordered_actuator_names, hardware_interface::HW_IF_FORCE);
+    "absolute_position");
+  // actuator_torque_sensor_ =
+  //   get_ordered_handles(actuator_handles, ordered_actuator_names, "torque");
 
   if (actuator_position_.size() != 2 && actuator_velocity_.size() != 2 &&
-    actuator_effort_.size() != 2 && actuator_abs_position_.size() != 2 &&
-    actuator_torque_sensor_.size() != 2)
+    actuator_effort_.size() != 2 && actuator_abs_position_.size() != 2)
+  // actuator_torque_sensor_.size() != 2)
   {
     throw transmission_interface::Exception(
             "Not enough valid or required actuator handles were presented. \n" +
@@ -235,9 +238,9 @@ void HalfDifferentialTransmission::configure(
 
   if (joint_position_.size() != actuator_position_.size() &&
     joint_velocity_.size() != actuator_velocity_.size() &&
-    joint_effort_.size() != actuator_effort_.size() &&
-    joint_abs_position_.size() != actuator_abs_position_.size() &&
-    joint_torque_sensor_.size() != actuator_torque_sensor_.size())
+    joint_effort_.size() != actuator_effort_.size())
+  // joint_abs_position_.size() != actuator_abs_position_.size() &&
+  // joint_torque_sensor_.size() != actuator_torque_sensor_.size())
   {
     throw transmission_interface::Exception(
             "Pair-wise mismatch on interfaces. \n" + get_handles_info());
@@ -296,31 +299,39 @@ void HalfDifferentialTransmission::actuatorToJointPosition()
       actuator_position_[0].get_optional().value() / act_reduction_[0]) /
       (jnt_reduction_[1]) + jnt_offset_[1]);
 
-    PL_DEBUG_STREAM(pal_log::PalLog::get_logger(), "Joint offset 0: " << jnt_offset_[0]);
-    PL_DEBUG_STREAM(pal_log::PalLog::get_logger(), "Joint offset 1: " << jnt_offset_[1]);
+    RCLCPP_DEBUG_STREAM(
+      rclcpp::get_logger(
+        "half_differential_transmission"), "Joint offset 0: " << jnt_offset_[0]);
+    RCLCPP_DEBUG_STREAM(
+      rclcpp::get_logger(
+        "half_differential_transmission"), "Joint offset 1: " << jnt_offset_[1]);
 
     needsZeroCalibration_ = false;
   } else if (needsZeroCalibration_) {
-    PL_INFO_THROTTLE(pal_log::PalLog::get_logger(), 1s, "Waiting for head initialization");
+    RCLCPP_INFO_THROTTLE(
+      rclcpp::get_logger("half_differential_transmission"),
+      *clock_,
+      1000,
+      "Waiting for head initialization");
   }
 }
 
-void HalfDifferentialTransmission::actuatorToJointAbsolutePosition()
-{
-  (void)joint_abs_position_[0].set_value(actuator_abs_position_[0].get_optional().value());
-  (void)joint_abs_position_[1].set_value(actuator_abs_position_[1].get_optional().value());
-}
+// void HalfDifferentialTransmission::actuatorToJointAbsolutePosition()
+// {
+//   (void)joint_abs_position_[0].set_value(actuator_abs_position_[0].get_optional().value());
+//   (void)joint_abs_position_[1].set_value(actuator_abs_position_[1].get_optional().value());
+// }
 
-void HalfDifferentialTransmission::actuatorToJointTorqueSensor()
-{
-  (void)joint_torque_sensor_[0].set_value(
-    (actuator_torque_sensor_[0].get_optional().value() *
-    act_reduction_[0]));
-  (void)joint_torque_sensor_[1].set_value(
-    jnt_reduction_[1] *
-    (actuator_torque_sensor_[0].get_optional().value() * act_reduction_[0] +
-    actuator_torque_sensor_[1].get_optional().value() * act_reduction_[1]));
-}
+// void HalfDifferentialTransmission::actuatorToJointTorqueSensor()
+// {
+//   (void)joint_torque_sensor_[0].set_value(
+//     (actuator_torque_sensor_[0].get_optional().value() *
+//     act_reduction_[0]));
+//   (void)joint_torque_sensor_[1].set_value(
+//     jnt_reduction_[1] *
+//     (actuator_torque_sensor_[0].get_optional().value() * act_reduction_[0] +
+//     actuator_torque_sensor_[1].get_optional().value() * act_reduction_[1]));
+// }
 
 void HalfDifferentialTransmission::jointToActuatorEffort()
 {
@@ -365,11 +376,11 @@ void HalfDifferentialTransmission::jointToActuatorPosition()
 
 void HalfDifferentialTransmission::actuator_to_joint()
 {
-  actuatorToJointAbsolutePosition();
+  // actuatorToJointAbsolutePosition();
   actuatorToJointPosition();
   actuatorToJointVelocity();
   actuatorToJointEffort();
-  actuatorToJointTorqueSensor();
+  // actuatorToJointTorqueSensor();
 }
 
 void HalfDifferentialTransmission::joint_to_actuator()

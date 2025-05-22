@@ -30,8 +30,6 @@ class HalfDifferentialTransmissionTest : public ::testing::Test
 protected:
   void SetUp() override
   {
-    pal_log::PalLog::init();
-
     act_reduction_ = {2.0, 3.0};   // {1.0, 1.0};
     jnt_reduction_ = {4.0, 8.0}; // {1.0, 2.0};
     jnt_offset_ = {0.0, 0.0}; //{0.1, -0.2};
@@ -49,10 +47,12 @@ protected:
     actuator_handles.emplace_back("motor2", HW_IF_VELOCITY, &actuator_velocity_handles_[1]);
     actuator_handles.emplace_back("motor1", HW_IF_EFFORT, &actuator_effort_handles_[0]);
     actuator_handles.emplace_back("motor2", HW_IF_EFFORT, &actuator_effort_handles_[1]);
-    actuator_handles.emplace_back("motor1", HW_IF_ACCELERATION, &actuator_abs_position_handles_[0]);
-    actuator_handles.emplace_back("motor2", HW_IF_ACCELERATION, &actuator_abs_position_handles_[1]);
-    actuator_handles.emplace_back("motor1", HW_IF_FORCE, &actuator_torque_sensor_handles_[0]);
-    actuator_handles.emplace_back("motor2", HW_IF_FORCE, &actuator_torque_sensor_handles_[1]);
+    actuator_handles.emplace_back(
+      "motor1", "absolute_position",
+      &actuator_abs_position_handles_[0]);
+    actuator_handles.emplace_back(
+      "motor2", "absolute_position",
+      &actuator_abs_position_handles_[1]);
 
     std::vector<JointHandle> joint_handles;
     joint_handles.emplace_back("joint1", HW_IF_POSITION, &joint_position_handles_[0]);
@@ -61,10 +61,6 @@ protected:
     joint_handles.emplace_back("joint2", HW_IF_VELOCITY, &joint_velocity_handles_[1]);
     joint_handles.emplace_back("joint1", HW_IF_EFFORT, &joint_effort_handles_[0]);
     joint_handles.emplace_back("joint2", HW_IF_EFFORT, &joint_effort_handles_[1]);
-    joint_handles.emplace_back("joint1", HW_IF_ACCELERATION, &joint_abs_position_handles_[0]);
-    joint_handles.emplace_back("joint2", HW_IF_ACCELERATION, &joint_abs_position_handles_[1]);
-    joint_handles.emplace_back("joint1", HW_IF_FORCE, &joint_torque_sensor_handles_[0]);
-    joint_handles.emplace_back("joint2", HW_IF_FORCE, &joint_torque_sensor_handles_[1]);
 
     transmission->configure(joint_handles, actuator_handles);
   }
@@ -97,18 +93,12 @@ public:
     std::numeric_limits<double>::quiet_NaN()};
   std::vector<double> actuator_abs_position_handles_{std::numeric_limits<double>::quiet_NaN(),
     std::numeric_limits<double>::quiet_NaN()};
-  std::vector<double> actuator_torque_sensor_handles_{std::numeric_limits<double>::quiet_NaN(),
-    std::numeric_limits<double>::quiet_NaN()};
 
   std::vector<double> joint_position_handles_{std::numeric_limits<double>::quiet_NaN(),
     std::numeric_limits<double>::quiet_NaN()};
   std::vector<double> joint_velocity_handles_{std::numeric_limits<double>::quiet_NaN(),
     std::numeric_limits<double>::quiet_NaN()};
   std::vector<double> joint_effort_handles_{std::numeric_limits<double>::quiet_NaN(),
-    std::numeric_limits<double>::quiet_NaN()};
-  std::vector<double> joint_abs_position_handles_{std::numeric_limits<double>::quiet_NaN(),
-    std::numeric_limits<double>::quiet_NaN()};
-  std::vector<double> joint_torque_sensor_handles_{std::numeric_limits<double>::quiet_NaN(),
     std::numeric_limits<double>::quiet_NaN()};
 };
 
@@ -150,9 +140,6 @@ TEST_F(HalfDifferentialTransmissionTest, Bijectivity)
     // Forward
     transmission->actuator_to_joint();
 
-    EXPECT_NEAR(joint_abs_position_handles_[0], actuator_abs_position_handles_[0], TOLERANCE);
-    EXPECT_NEAR(joint_abs_position_handles_[1], actuator_abs_position_handles_[1], TOLERANCE);
-
     // Backward
     transmission->joint_to_actuator();
 
@@ -187,9 +174,6 @@ TEST_F(HalfDifferentialTransmissionTest, ActuatorToJointValidation)
     actuator_effort_handles_[1] = dist(rng);
 
     transmission->actuator_to_joint();
-
-    EXPECT_NEAR(joint_abs_position_handles_[0], actuator_abs_position_handles_[0], TOLERANCE);
-    EXPECT_NEAR(joint_abs_position_handles_[1], actuator_abs_position_handles_[1], TOLERANCE);
 
     if (i == 0) {
       EXPECT_NEAR(joint_position_handles_[0], actuator_abs_position_handles_[0], TOLERANCE);
