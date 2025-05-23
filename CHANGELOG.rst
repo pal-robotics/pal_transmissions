@@ -2,8 +2,8 @@
 Changelog for package pal_transmissions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.1.0 (2025-05-23)
+------------------
 * Adapt changes to the real robot
 * Extend tests
 * Fix equations
