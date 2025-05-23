@@ -2,6 +2,20 @@
 Changelog for package pal_transmissions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Adapt changes to the real robot
+* Extend tests
+* Fix equations
+* Add test for HalfDifferentialTransmission
+* Fix warnings
+* Remove Eigen dependency
+* Set first actuatorToJointAbsolutePosition
+* Add test and debug HalfDifferentialTransmission
+* Start ROS 2 migration
+* added c++11 compilation option
+* Contributors: Adria Roig, Adrià Roig, Sai Kishor Kothakota
+
 0.2.5 (2019-09-12)
 ------------------
 * Fixed shadowed variables
