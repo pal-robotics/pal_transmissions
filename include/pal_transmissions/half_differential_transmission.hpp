@@ -22,7 +22,6 @@
 #include "transmission_interface/transmission.hpp"
 #include "transmission_interface/accessor.hpp"
 #include "transmission_interface/exception.hpp"
-#include "pal_logger/pal_logger.hpp"
 #include "rclcpp/logging.hpp"
 
 namespace pal_transmissions
