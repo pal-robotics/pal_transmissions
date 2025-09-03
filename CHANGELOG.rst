@@ -2,8 +2,8 @@
 Changelog for package pal_transmissions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.1.1 (2025-09-03)
+------------------
 * Merge branch 'update/new_API' into 'alum-devel'
   Update API from ROS 2 Control
   See merge request control/pal_transmissions!13
