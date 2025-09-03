@@ -2,6 +2,18 @@
 Changelog for package pal_transmissions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge branch 'update/new_API' into 'alum-devel'
+  Update API from ROS 2 Control
+  See merge request control/pal_transmissions!13
+* Update API from ROS 2 Control
+* Merge branch 'remove/pal_logger' into 'alum-devel'
+  Remove pal_logger dependencies
+  See merge request control/pal_transmissions!12
+* Remove pal_logger dependencies
+* Contributors: Adrià Roig, Sai Kishor Kothakota
+
 1.1.0 (2025-05-23)
 ------------------
 * Adapt changes to the real robot
