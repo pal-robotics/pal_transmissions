@@ -2,8 +2,8 @@
 Changelog for package pal_transmissions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.1.2 (2025-10-21)
+------------------
 * Fix ament_auto warning about headers install destination
 * Contributors: Noel Jimenez
 
