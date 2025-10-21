@@ -2,6 +2,11 @@
 Changelog for package pal_transmissions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fix ament_auto warning about headers install destination
+* Contributors: Noel Jimenez
+
 1.1.1 (2025-09-03)
 ------------------
 * Merge branch 'update/new_API' into 'alum-devel'
